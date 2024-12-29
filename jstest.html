@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="../css/updates.css">
+    <script>
+        async function loadPageFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            const url = params.get('url');
+            if (url) {
+                try {
+                    const response = await fetch(url);
+                    const htmlText = await response.text();
+
+                    // Create a temporary DOM parser
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(htmlText, 'text/html');
+
+                    // Update the title and body
+                    document.title = doc.title;
+                    document.body.innerHTML = doc.body.innerHTML;
+                } catch (error) {
+                    console.error('Error fetching the URL:', error);
+                    document.body.innerHTML = '<p>Error loading the page content. Please check the URL.</p>';
+                }
+            } else {
+                document.body.innerHTML = '<p>No "url" parameter found in the query string.</p>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadPageFromURL);
+    </script>
+</head>
+<body>
+</body>
+</html>
