@@ -27,6 +27,7 @@
           document.body.innerHTML = data[name].body;
         } else {
           console.error('Name parameter is missing or not found in updates.json');
+          document.body.innerHTML = 'Name parameter is missing or not found in updates.json';
         }
       })
       .catch(error => {
