@@ -11,17 +11,17 @@
     const url = params.get('url');
     if (url) {
         try {
-            const proxyUrl = 'https://cors-anywhere.herokuapp.com/';  // CORS proxy
-            const response = await fetch(proxyUrl + url);
-            const htmlText = await response.text();
+            // Call the PHP script to fetch the page content
+            const response = await fetch(`fetch_page.php?url=${encodeURIComponent(url)}`);
+            const data = await response.json();
 
-            // Create a temporary DOM parser
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlText, 'text/html');
-
-            // Update the title and body
-            document.title = doc.title;
-            document.body.innerHTML = doc.body.innerHTML;
+            if (data.title && data.body) {
+                // Update the title and body
+                document.title = data.title;
+                document.body.innerHTML = data.body;
+            } else {
+                document.body.innerHTML = '<p>Error loading the page content. ' + (data.error || '') + '</p>';
+            }
         } catch (error) {
             console.error('Error fetching the URL:', error);
             document.body.innerHTML = '<p>Error loading the page content. Please check the URL.</p>';
@@ -30,6 +30,8 @@
         document.body.innerHTML = '<p>No "url" parameter found in the query string.</p>';
     }
 }
+
+document.addEventListener('DOMContentLoaded', loadPageFromURL);
 
         document.addEventListener('DOMContentLoaded', loadPageFromURL);
     </script>
