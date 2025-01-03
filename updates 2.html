@@ -18,6 +18,7 @@
       .then(response => response.json())
       .then(data => {
         const name = getUrlParameter('name'); // Get the 'name' parameter from the URL
+
         if (name && data[name]) {
           // Set the title tag to the value of {name}.title
           document.title = data[name].title;
@@ -28,19 +29,6 @@
           console.error('Name parameter is missing or not found in updates.json');
           document.body.innerHTML = 'Name parameter is missing or not found in updates.json';
         }
-
-        // After modifying body, fetch blogUpdates.json
-        fetch('blogUpdates.json')
-          .then(response => response.json())
-          .then(blogData => {
-            if (name && blogData[name]) {
-              // Append the value from blogUpdates.json to the body
-              document.body.innerHTML += `<div>${blogData[name]}</div>`;
-            }
-          })
-          .catch(error => {
-            console.error('Error loading blogUpdates.json:', error);
-          });
       })
       .catch(error => {
         console.error('Error loading updates.json:', error);
