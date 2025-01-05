@@ -14,7 +14,7 @@
     }
 
     // Fetch the updates.json file
-    fetch('updates.json')
+    fetch('recapUpdates.json')
       .then(response => response.json())
       .then(data => {
         const name = getUrlParameter('name'); // Get the 'name' parameter from the URL
