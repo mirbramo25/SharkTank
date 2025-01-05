@@ -38,31 +38,32 @@
           document.title = name;
         });
 
-      // Use Promise.all to fetch recapUpdates.json and blogUpdates.json simultaneously
-      Promise.all([
-        fetch('recapUpdates.json').then(response => response.json()),
-        fetch('blogUpdates.json').then(response => response.json())
-      ])
-      .then(([recapData, blogData]) => {
-        // Handle recapUpdates content
-        if (recapData[name] && recapData[name] !== "Null") {
-          const recapDiv = document.createElement('div');
-          recapDiv.id = 'recap';
-          recapDiv.innerHTML = recapData[name].body || '';
-          document.body.appendChild(recapDiv);
-        }
-
-        // Handle blogUpdates content
-        if (blogData[name]) {
-          const blogDiv = document.createElement('div');
-          blogDiv.id = 'blog';
-          blogDiv.innerHTML = blogData[name];
-          document.body.appendChild(blogDiv);
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching updates:', error);
-      });
+      // Sequential fetching: First fetch recapUpdates.json, then blogUpdates.json
+      fetch('recapUpdates.json')
+        .then(response => response.json())
+        .then(recapData => {
+          if (recapData[name] && recapData[name] !== "Null") {
+            // Add the recap content inside a div with id "recap"
+            const recapDiv = document.createElement('div');
+            recapDiv.id = 'recap';
+            recapDiv.innerHTML = recapData[name].body || '';
+            document.body.appendChild(recapDiv);
+          }
+          return fetch('blogUpdates.json'); // Start the blog fetch after recap is done
+        })
+        .then(response => response.json())
+        .then(blogData => {
+          if (blogData[name]) {
+            // Add the blog content inside a div with id "blog"
+            const blogDiv = document.createElement('div');
+            blogDiv.id = 'blog';
+            blogDiv.innerHTML = blogData[name];
+            document.body.appendChild(blogDiv);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching updates:', error);
+        });
     }
   </script>
 </body>
