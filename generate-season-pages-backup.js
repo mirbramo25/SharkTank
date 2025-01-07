@@ -33,18 +33,7 @@ const decodeEntities = (title) => {
     .replace(/&#8217;/g, "'")  // Replace apostrophes
     .replace(/&#038;/g, "and")  // Replace ampersands
     .replace(/ &#8211;/g, "")    // Remove &#8211;
-};
-
-const removeDuplicateSpaces = (title) => {
-  return title.replace(/\s+/g, ' ').trim();
-};
-
-const generateGoogleHref = (query, suffix) => {
-  const baseUrl = "https://www.google.com/search?q="";
-
-  searchString=encodeURIComponent(`${query.trim()} ${suffix.trim()}`);
-
-  return baseUrl + searchString;
+    .replace(/\./g, "");        // Remove periods
 };
 
 // Function to decode HTML entities
@@ -56,6 +45,12 @@ const generateGoogleHref = (query, suffix) => {
 async function modifyHTML(theHtml, useSaf, titleDict) {
   // Fetch the HTML from the passed URL
   let htmlContent = theHtml;
+
+  // Remove everything after <!-- /.td-main-content-wrap -->
+  const splitIndex = htmlContent.indexOf("<!-- /.td-main-content-wrap -->");
+  if (splitIndex !== -1) {
+    htmlContent = htmlContent.slice(0, splitIndex);
+  }
 
   // Update all <a class="td-main-logo" href="..."> elements
   htmlContent = htmlContent.replace(
@@ -70,10 +65,8 @@ async function modifyHTML(theHtml, useSaf, titleDict) {
   });
 
   // Array to store second link titles and truncated titles
-  let titles = [];
+  let secondLinkTitles = [];
   let truncTitles = [];
-  let cleanedTitles = [];
-  let allStLinks = [];
 
   // Modify <a> tags in td-module-thumb divs (first link)
   htmlContent = htmlContent.replace(/<div class="td-module-thumb"><a href="([^"]+)"[^>]*title="([^"]+)"/g, (match, originalHref, title) => {
@@ -85,15 +78,14 @@ const cleanedTitle = decodeEntities(removePeriods(truncatedTitle));
   // Modify <a> tags in h3.entry-title td-module-title (second link) and duplicate them
   htmlContent = htmlContent.replace(/(<h3 class="entry-title td-module-title">.*?<a href="([^"]+)"[^>]*title="([^"]+)".*?<\/a>.*?<\/h3>)/g, (match, fullMatch, originalHref, title) => {
     const truncatedTitle = getTruncatedTitle(title); // Get the truncated title for the href
-    titles.push(title); // Collect second link titles (unmodified)
+    secondLinkTitles.push(title); // Collect second link titles (unmodified)
     truncTitles.push(truncatedTitle); // Collect truncated titles used for href generation
 
     // Remove periods from truncated title and decode HTML entities
     const cleanedTitle = decodeEntities(removePeriods(truncatedTitle));
 
     // If titleDict exists and has a value for the cleaned title
-    
-    
+    const newHref = titleDict && titleDict[cleanedTitle] ? titleDict[cleanedTitle] : null;
 
     // The first instance of the second link remains unchanged and is always included
     let modifiedLink = fullMatch.replace(originalHref, generateHref(cleanedTitle, " shark tank reddit", false));
@@ -120,7 +112,7 @@ const cleanedTitle = decodeEntities(removePeriods(truncatedTitle));
   // Set the modified HTML and second link titles as output of the Shortcut
   const output = {
     html: htmlContent,
-    titles: titles,
+    titles: secondLinkTitles,
     truncTitles: truncTitles, // Add truncated titles to the output
   };
 
