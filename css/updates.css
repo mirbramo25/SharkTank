@@ -32,3 +32,8 @@ iframe {
       display: block;
       border: none;
 }
+img {
+    max-width: 100%; /* Ensures the image width does not exceed the width of the container */
+    height: auto; /* Maintains the aspect ratio of the image */
+    display: block; /* Prevents inline element spacing issues */
+}
