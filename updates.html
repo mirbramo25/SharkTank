@@ -41,29 +41,35 @@
       // Use Promise.all to fetch recapUpdates.json and blogUpdates.json simultaneously
       Promise.all([
         fetch('recapUpdates.json').then(response => response.json()),
-        fetch('blogUpdates.json').then(response => response.json())
+        fetch('Blog_Updates.json').then(response => response.json())
       ])
-      .then(([recapData, blogData]) => {
-        // Handle recapUpdates content
-        if (recapData[name] && recapData[name] !== "Null") {
-          const recapDiv = document.createElement('div');
-          recapDiv.id = 'recap';
-          recapDiv.innerHTML = recapData[name].body || '';
-          document.body.appendChild(recapDiv);
-        }
+.then(([recapData, blogData]) => {
+      
+    // Handle recapUpdates content
+  const recap = recapData[name].body,
+        blog = blogData[name].blogBody;
+  if (recap) {
+    const recapDiv = 
+      document.createElement('div');
+    recapDiv.id = 'recap';
+    recapDiv.innerHTML = recap || '';
+    document.body.appendChild(recapDiv);
+  }
 
-        // Handle blogUpdates content
-        if (blogData[name]) {
-          const blogDiv = document.createElement('div');
-          blogDiv.id = 'blog';
-          blogDiv.innerHTML = blogData[name];
-          document.body.appendChild(blogDiv);
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching updates:', error);
-      });
-    }
+  // Handle blogUpdates content
+  if (blog) {
+    const blogDiv=
+      document.createElement('div');
+    blogDiv.id = 'blog';
+    blogDiv.innerHTML = blog;
+    document.body.appendChild(blogDiv);
+  }
+})
+.catch(error => {
+  console.error('Error fetching updates:', error);
+});
+
+}
   </script>
 </body>
 </html>
