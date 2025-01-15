@@ -20,56 +20,42 @@
       console.error('Name parameter is missing');
       document.body.innerHTML = 'Name parameter is missing';
     } else {
-      // Fetch the updateTitles.json file to set the title
-      fetch('updateTitles.json')
+      // Load data from Updates.json
+      fetch('Updates.json')
         .then(response => response.json())
-        .then(titleData => {
-          if (titleData[name]) {
-            // Set the title tag to the value of {name} in updateTitles.json
-            document.title = titleData[name];
-          } else {
-            // If title not found, set the title to the URL parameter 'name'
-            document.title = name;
+        .then(data => {
+          if (!data[name]) {
+            console.error(`No data found for '${name}' in Updates.json`);
+            document.body.innerHTML = `No data found for '${name}'`;
+            return;
+          }
+
+          // Set the title using data[name].title
+          document.title = data[name].title || name;
+
+          // Handle recap content
+          const recapBody = data[name]?.recap?.recapBody;
+          if (recapBody) {
+            const recapDiv = document.createElement('div');
+            recapDiv.id = 'recap';
+            recapDiv.innerHTML = recapBody;
+            document.body.appendChild(recapDiv);
+          }
+
+          // Handle blog content
+          const blogBody = data[name]?.blog?.blogBody;
+          if (blogBody) {
+            const blogDiv = document.createElement('div');
+            blogDiv.id = 'blog';
+            blogDiv.innerHTML = blogBody;
+            document.body.appendChild(blogDiv);
           }
         })
         .catch(error => {
-          console.error('Error loading updateTitles.json:', error);
-          // If there's an error loading updateTitles.json, set the title to the URL parameter 'name'
-          document.title = name;
+          console.error('Error loading Updates.json:', error);
+          document.body.innerHTML = 'Error loading updates.';
         });
-
-      // Use Promise.all to fetch recapUpdates.json and blogUpdates.json simultaneously
-      Promise.all([
-        fetch('recapUpdates.json').then(response => response.json()),
-        fetch('Blog_Updates.json').then(response => response.json())
-      ])
-.then(([recapData, blogData]) => {
-      
-    // Handle recapUpdates content
-  const recap = recapData[name].body,
-        blog = blogData[name].blogBody;
-  if (recap) {
-    const recapDiv = 
-      document.createElement('div');
-    recapDiv.id = 'recap';
-    recapDiv.innerHTML = recap || '';
-    document.body.appendChild(recapDiv);
-  }
-
-  // Handle blogUpdates content
-  if (blog) {
-    const blogDiv=
-      document.createElement('div');
-    blogDiv.id = 'blog';
-    blogDiv.innerHTML = blog;
-    document.body.appendChild(blogDiv);
-  }
-})
-.catch(error => {
-  console.error('Error fetching updates:', error);
-});
-
-}
+    }
   </script>
 </body>
 </html>
