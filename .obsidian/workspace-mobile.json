@@ -11,10 +11,14 @@
             "id": "f69bfae3896b4c59",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "shark.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "shark"
             }
           }
         ]
@@ -44,7 +48,7 @@
         "state": {
           "type": "search",
           "state": {
-            "query": "",
+            "query": "Shark",
             "matchingCase": false,
             "explainSearch": false,
             "collapseAll": false,
@@ -79,7 +83,7 @@
         }
       }
     ],
-    "currentTab": 0
+    "currentTab": 1
   },
   "right": {
     "id": "8666d1107dc1607c",
@@ -139,8 +143,9 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "f69bfae3896b4c59",
+  "active": "e3602767df6c067c",
   "lastOpenFiles": [
+    "shark.md",
     "Prevs/S6.md"
   ]
 }
