@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "shark.md",
+                "file": "Obsidian Setup.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "shark"
+              "title": "Obsidian Setup"
             }
           }
         ]
@@ -48,7 +48,7 @@
         "state": {
           "type": "search",
           "state": {
-            "query": "Shark",
+            "query": "",
             "matchingCase": false,
             "explainSearch": false,
             "collapseAll": false,
@@ -83,7 +83,7 @@
         }
       }
     ],
-    "currentTab": 1
+    "currentTab": 0
   },
   "right": {
     "id": "8666d1107dc1607c",
@@ -143,14 +143,17 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "e3602767df6c067c",
+  "active": "f69bfae3896b4c59",
   "lastOpenFiles": [
+    "Tests/updates.json",
+    "shark.md",
+    "Obsidian Setup.md",
+    "Untitled.md.md",
     "Prevs/S14 1.html",
     "Prevs/S9 1.html",
     "Prevs/S6 2.html",
     "Tests/S6-test-4.html",
     "Tests/S6-test-3.html",
-    "shark.md",
     "Prevs/S6.md"
   ]
 }
