@@ -1,0 +1,22 @@
+~: /var/mobile/Containers/Data/Application/EC808E14-C9A0-48C6-B95E-EC2423C97DF5
+~Data_Jar_Folder: /private/var/mobile/Library/Mobile Documents/iCloud~dk~simonbs~DataJar/Documents
+~Documents: /private/var/mobile/Containers/Data/Application/EC808E14-C9A0-48C6-B95E-EC2423C97DF5/Documents
+~Documents_1: /private/var/mobile/Library/Mobile Documents/iCloud~md~obsidian/Documents
+~Downloads: /private/var/mobile/Containers/Shared/AppGroup/7EE44550-0C0E-4D92-889E-AE92C4745D30/File Provider Storage/Downloads
+~Obsidian: /private/var/mobile/Library/Mobile Documents/iCloud~md~obsidian/Documents
+~SharkTank: /private/var/mobile/Library/Mobile Documents/iCloud~md~obsidian/Documents/SharkTank
+~bin: /private/var/mobile/Containers/Data/Application/EC808E14-C9A0-48C6-B95E-EC2423C97DF5/Documents/bin
+~cloud: /private/var/mobile/Library/Mobile Documents/iCloud~AsheKube~app~a-Shell/Documents
+~commands.sh: /private/var/mobile/Containers/Data/Application/EC808E14-C9A0-48C6-B95E-EC2423C97DF5/Documents/bin/commands.sh
+~com~apple~CloudDocs: /private/var/mobile/Library/Mobile Documents/com~apple~CloudDocs
+~datajar: /private/var/mobile/Library/Mobile Documents/com~apple~CloudDocs/Data Jar Backup
+~group: /private/var/mobile/Containers/Shared/AppGroup/E75B726E-DEFF-491B-AB40-B02B7CF60BFB
+~home: /var/mobile/Containers/Data/Application/EC808E14-C9A0-48C6-B95E-EC2423C97DF5
+~iCloud: /private/var/mobile/Library/Mobile Documents/iCloud~AsheKube~app~a-Shell/Documents
+~icloud: /private/var/mobile/Library/Mobile Documents/com~apple~CloudDocs
+~obs-notes: /private/var/mobile/Library/Mobile Documents/iCloud~md~obsidian/Documents/Notes
+~sc: /private/var/mobile/Library/Mobile Documents/com~apple~CloudDocs/Shortcuts_Backups
+~scb: /private/var/mobile/Library/Mobile Documents/iCloud~md~obsidian/Documents/scriptables
+~scriptabs: /private/var/mobile/Library/Mobile Documents/iCloud~dk~simonbs~Scriptable/Documents
+~shortcuts: /private/var/mobile/Containers/Shared/AppGroup/E75B726E-DEFF-491B-AB40-B02B7CF60BFB
+~st: /private/var/mobile/Library/Mobile Documents/com~apple~CloudDocs/SharkTank
