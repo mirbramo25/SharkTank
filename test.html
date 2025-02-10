@@ -10,20 +10,38 @@
   </div>
   <div id="error-display"></div>
   <div id="console-display"></div>
+
   <script>
+    // Extract the "name" parameter from the URL, defaulting to "Chocomize" if missing.
+    const urlParams = new URLSearchParams(window.location.search);
+    const nameParam = urlParams.get('name') || 'Chocomize';
+
+    // Function to fetch the Updates.json file (in the same directory) and set the page title if a title exists.
+    async function setPageTitle() {
+      try {
+        const response = await fetch('Updates.json');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const updatesData = await response.json();
+        const titleValue = updatesData[nameParam] && updatesData[nameParam].title;
+        if (titleValue) {
+          document.title = titleValue;
+        }
+      } catch (error) {
+        console.error('Error setting page title:', error);
+      }
+    }
+
+    // Function to call the Netlify function and display its HTML output.
     async function fetchAndDisplayHTML() {
       try {
-        // Get the "name" parameter from the page URL; default to "Chocomize" if not provided.
-        const urlParams = new URLSearchParams(window.location.search);
-        const nameParam = urlParams.get('name') || 'Chocomize';
-
-        // Build the function URL with the query parameter.
+        // Build the function URL with the query parameter "name"
         const functionUrl = `/.netlify/functions/fetch?name=${encodeURIComponent(nameParam)}`;
-
         const response = await fetch(functionUrl);
 
         if (!response.ok) {
-          const errorText = await response.text(); // Get the error message from the server
+          const errorText = await response.text();
           displayError(`HTTP error! status: ${response.status} - ${errorText}`);
           return;
         }
@@ -35,12 +53,12 @@
         } else {
           displayError("Container element not found.");
         }
-
       } catch (error) {
         displayError('Error fetching HTML: ' + error);
       }
     }
 
+    // Utility function to display errors.
     function displayError(message) {
       const errorDiv = document.getElementById('error-display');
       if (errorDiv) {
@@ -48,7 +66,7 @@
       }
     }
 
-    // Capture console.error and display it on the page
+    // Override console.error to also display errors on the page.
     console.error = (error) => {
       const consoleDiv = document.getElementById('console-display');
       if (consoleDiv) {
@@ -56,7 +74,7 @@
       }
     };
 
-    // Capture console.log and display it on the page (if needed)
+    // Override console.log to also display logs on the page (if desired).
     console.log = (message) => {
       const consoleDiv = document.getElementById('console-display');
       if (consoleDiv) {
@@ -64,7 +82,8 @@
       }
     };
 
-    // Start fetching the HTML content.
+    // Set the page title if available, then fetch & display the HTML content.
+    setPageTitle();
     fetchAndDisplayHTML();
   </script>
 
