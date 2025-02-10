@@ -8,14 +8,15 @@
   <div id="fetched-content">
     <p>Loading content...</p>
   </div>
-
-  <script>
+  <div id="error-display"></div>  <div id="console-display"></div> <script>
     async function fetchAndDisplayHTML() {
       try {
         const response = await fetch('/.netlify/functions/fetch');
 
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          const errorText = await response.text(); // Get the error message from the server
+          displayError(`HTTP error! status: ${response.status} - ${errorText}`);
+          return;
         }
 
         const html = await response.text();
@@ -23,17 +24,37 @@
         if (container) {
           container.innerHTML = html;
         } else {
-          console.error("Container element not found.");
+          displayError("Container element not found.");
         }
 
       } catch (error) {
-        console.error('Error fetching HTML:', error);
-        const container = document.getElementById('fetched-content');
-        if (container) {
-          container.innerHTML = "<p>Error loading content.</p>";
-        }
+        displayError('Error fetching HTML: ' + error);
       }
     }
+
+    function displayError(message) {
+      const errorDiv = document.getElementById('error-display');
+      if (errorDiv) {
+        errorDiv.innerHTML = `<p style="color: red;">${message}</p>`;
+      }
+    }
+
+    // Capture console.error and display it on the page
+    console.error = (error) => {
+      const consoleDiv = document.getElementById('console-display');
+      if (consoleDiv) {
+        consoleDiv.innerHTML += `<p style="color: orange;">Console Error: ${error}</p>`;
+      }
+    };
+
+    // Capture console.log and display it on the page (if needed)
+    console.log = (message) => {
+      const consoleDiv = document.getElementById('console-display');
+      if (consoleDiv) {
+        consoleDiv.innerHTML += `<p style="color: blue;">Console Log: ${message}</p>`;
+      }
+    };
+
 
     fetchAndDisplayHTML();
 
