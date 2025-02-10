@@ -70,6 +70,12 @@
       });
     }
 
+    // Remove all div elements with the class "lasso-container"
+    function removeLassoContainers() {
+      const lassoContainers = document.querySelectorAll('#fetched-content .lasso-container');
+      lassoContainers.forEach(container => container.remove());
+    }
+
     // Fetch the remote HTML from the Netlify function and insert it into the page.
     async function fetchAndDisplayHTML() {
       try {
@@ -93,6 +99,8 @@
           fixImages();
           // Remove all iframes and noscript elements that contain an iframe.
           removeIframes();
+          // Remove all div elements with the class "lasso-container".
+          removeLassoContainers();
         } else {
           displayError("Container element not found.");
         }
