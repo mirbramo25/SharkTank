@@ -8,10 +8,19 @@
   <div id="fetched-content">
     <p>Loading content...</p>
   </div>
-  <div id="error-display"></div>  <div id="console-display"></div> <script>
+  <div id="error-display"></div>
+  <div id="console-display"></div>
+  <script>
     async function fetchAndDisplayHTML() {
       try {
-        const response = await fetch('/.netlify/functions/fetch');
+        // Get the "name" parameter from the page URL; default to "Chocomize" if not provided.
+        const urlParams = new URLSearchParams(window.location.search);
+        const nameParam = urlParams.get('name') || 'Chocomize';
+
+        // Build the function URL with the query parameter.
+        const functionUrl = `/.netlify/functions/fetch?name=${encodeURIComponent(nameParam)}`;
+
+        const response = await fetch(functionUrl);
 
         if (!response.ok) {
           const errorText = await response.text(); // Get the error message from the server
@@ -55,9 +64,8 @@
       }
     };
 
-
+    // Start fetching the HTML content.
     fetchAndDisplayHTML();
-
   </script>
 
 </body>
