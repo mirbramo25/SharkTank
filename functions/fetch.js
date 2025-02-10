@@ -1,8 +1,11 @@
 exports.handler = async (event) => {
   const fetch = (...args) =>
-    import('node-fetch').then(({default: fetch}) => fetch(...args));
+    import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
-  const targetURL = 'https://sharktankrecap.com/ilumi-light-bulbs-update-shark-tank-season-5/';
+  // Extract the "url" query parameter if provided; otherwise, use the default URL.
+  const { url: queryUrl } = event.queryStringParameters || {};
+  const targetURL =
+    queryUrl || 'https://sharktankrecap.com/ilumi-light-bulbs-update-shark-tank-season-5/';
 
   try {
     const response = await fetch(targetURL);
@@ -10,7 +13,9 @@ exports.handler = async (event) => {
     if (!response.ok) {
       return {
         statusCode: response.status,
-        body: JSON.stringify({ error: `HTTP error! status: ${response.status}` }),
+        body: JSON.stringify({
+          error: `HTTP error! status: ${response.status}`,
+        }),
       };
     }
 
@@ -21,7 +26,7 @@ exports.handler = async (event) => {
       body: html,
       headers: {
         'Content-Type': 'text/html',
-        'Access-Control-Allow-Origin': 'https://sharktankups.netlify.app', // Your domain!
+        'Access-Control-Allow-Origin': 'https://sharktankups.netlify.app', // Update to your domain if needed
         'Access-Control-Allow-Methods': 'GET',
       },
     };
@@ -33,4 +38,3 @@ exports.handler = async (event) => {
     };
   }
 };
-
