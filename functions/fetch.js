@@ -1,6 +1,7 @@
-const fetch = require('node-fetch');
-
 exports.handler = async (event) => {
+  const fetch = (...args) =>
+    import('node-fetch').then(({default: fetch}) => fetch(...args));
+
   const targetURL = 'https://sharktankrecap.com/ilumi-light-bulbs-update-shark-tank-season-5/';
 
   try {
@@ -32,3 +33,4 @@ exports.handler = async (event) => {
     };
   }
 };
+
