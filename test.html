@@ -29,7 +29,11 @@
         if (updatesData[nameParam] && updatesData[nameParam].title) {
           document.title = updatesData[nameParam].title;
         }
-        if (updatesData[nameParam] && updatesData[nameParam].recap && updatesData[nameParam].recap.recapLink) {
+        if (
+          updatesData[nameParam] &&
+          updatesData[nameParam].recap &&
+          updatesData[nameParam].recap.recapLink
+        ) {
           baseUrl = updatesData[nameParam].recap.recapLink;
         }
       } catch (error) {
@@ -37,13 +41,31 @@
       }
     }
 
-    // Fix image issues: For each <p> that contains a <noscript>, replace its content with that of the <noscript>
+    // For each <p> that contains a <noscript>, replace its content with the content from the <noscript>
     function fixImages() {
       const paragraphs = document.querySelectorAll('#fetched-content p');
       paragraphs.forEach(p => {
         const ns = p.querySelector('noscript');
         if (ns && ns.innerHTML) {
           p.innerHTML = ns.innerHTML;
+        }
+      });
+    }
+
+    // Remove all <iframe> elements and any <noscript> that contains an <iframe>
+    function removeIframes() {
+      // Remove all iframe elements within the fetched content
+      const iframes = document.querySelectorAll('#fetched-content iframe');
+      iframes.forEach(iframe => iframe.remove());
+
+      // Remove any noscript elements that contain an iframe in their content.
+      const noscripts = document.querySelectorAll('#fetched-content noscript');
+      noscripts.forEach(ns => {
+        // Create a temporary container to parse the inner HTML of the noscript
+        const temp = document.createElement('div');
+        temp.innerHTML = ns.innerHTML;
+        if (temp.querySelector('iframe')) {
+          ns.remove();
         }
       });
     }
@@ -67,8 +89,10 @@
         const container = document.getElementById('fetched-content');
         if (container) {
           container.innerHTML = html;
-          // After inserting the HTML, replace each <p>'s content with its <noscript> content (if present)
+          // Replace p content with working image from noscript (if available)
           fixImages();
+          // Remove all iframes and noscript elements that contain an iframe.
+          removeIframes();
         } else {
           displayError("Container element not found.");
         }
@@ -85,7 +109,7 @@
       }
     }
 
-    // Override console.error to display errors on the page.
+    // Override console.error to also display errors on the page.
     console.error = (error) => {
       const consoleDiv = document.getElementById('console-display');
       if (consoleDiv) {
@@ -93,7 +117,7 @@
       }
     };
 
-    // Override console.log to display logs on the page.
+    // Override console.log to also display logs on the page.
     console.log = (message) => {
       const consoleDiv = document.getElementById('console-display');
       if (consoleDiv) {
