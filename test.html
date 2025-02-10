@@ -4,7 +4,6 @@
   <title>Shark Tank Recap Display</title>
 </head>
 <body>
-
   <div id="fetched-content">
     <p>Loading content...</p>
   </div>
@@ -12,41 +11,50 @@
   <div id="console-display"></div>
 
   <script>
-    // Extract the "name" parameter from the URL, defaulting to "Chocomize" if missing.
+    // Get the "name" parameter from the URL (default to "Chocomize")
     const urlParams = new URLSearchParams(window.location.search);
     const nameParam = urlParams.get('name') || 'Chocomize';
 
-    // Function to fetch the Updates.json file (in the same directory) and set the page title if a title exists.
-    async function setPageTitle() {
+    // Global variable to store the recapLink from Updates.json
+    let baseUrl = null;
+
+    // Fetch Updates.json (located in the same directory) and update the page title and baseUrl if available.
+    async function setPageTitleAndBase() {
       try {
         const response = await fetch('Updates.json');
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const updatesData = await response.json();
-        const titleValue = updatesData[nameParam] && updatesData[nameParam].title;
-        if (titleValue) {
-          document.title = titleValue;
+        // Update the page title only if a title exists in the JSON
+        if (updatesData[nameParam] && updatesData[nameParam].title) {
+          document.title = updatesData[nameParam].title;
+        }
+        // Get the recapLink value to use as the base URL for images, if available
+        if (updatesData[nameParam] && updatesData[nameParam].recap && updatesData[nameParam].recap.recapLink) {
+          baseUrl = updatesData[nameParam].recap.recapLink;
         }
       } catch (error) {
-        console.error('Error setting page title:', error);
+        console.error('Error fetching Updates.json:', error);
       }
     }
 
-    // Function to call the Netlify function and display its HTML output.
+    // Fetch the remote HTML from the Netlify function and insert it into the page.
     async function fetchAndDisplayHTML() {
       try {
-        // Build the function URL with the query parameter "name"
+        // Build the function URL using the "name" parameter
         const functionUrl = `/.netlify/functions/fetch?name=${encodeURIComponent(nameParam)}`;
         const response = await fetch(functionUrl);
-
         if (!response.ok) {
           const errorText = await response.text();
           displayError(`HTTP error! status: ${response.status} - ${errorText}`);
           return;
         }
-
-        const html = await response.text();
+        let html = await response.text();
+        // If baseUrl is available, inject a <base> tag into the <head> of the fetched HTML
+        if (baseUrl) {
+          html = html.replace(/<head>/i, `<head><base href="${baseUrl}">`);
+        }
         const container = document.getElementById('fetched-content');
         if (container) {
           container.innerHTML = html;
@@ -74,7 +82,7 @@
       }
     };
 
-    // Override console.log to also display logs on the page (if desired).
+    // Override console.log to also display logs on the page.
     console.log = (message) => {
       const consoleDiv = document.getElementById('console-display');
       if (consoleDiv) {
@@ -82,10 +90,13 @@
       }
     };
 
-    // Set the page title if available, then fetch & display the HTML content.
-    setPageTitle();
-    fetchAndDisplayHTML();
-  </script>
+    // Run the initialization: first update title/base then fetch and display the HTML.
+    async function init() {
+      await setPageTitleAndBase();
+      await fetchAndDisplayHTML();
+    }
 
+    init();
+  </script>
 </body>
 </html>
