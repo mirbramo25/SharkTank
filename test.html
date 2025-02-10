@@ -18,7 +18,7 @@
     // Global variable to store the recapLink from Updates.json
     let baseUrl = null;
 
-    // Fetch Updates.json (located in the same directory) and update the page title and baseUrl if available.
+    // Fetch Updates.json (located in the same directory) to update the title and set baseUrl
     async function setPageTitleAndBase() {
       try {
         const response = await fetch('Updates.json');
@@ -26,11 +26,9 @@
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const updatesData = await response.json();
-        // Update the page title only if a title exists in the JSON
         if (updatesData[nameParam] && updatesData[nameParam].title) {
           document.title = updatesData[nameParam].title;
         }
-        // Get the recapLink value to use as the base URL for images, if available
         if (updatesData[nameParam] && updatesData[nameParam].recap && updatesData[nameParam].recap.recapLink) {
           baseUrl = updatesData[nameParam].recap.recapLink;
         }
@@ -39,10 +37,21 @@
       }
     }
 
+    // Fix image issues: For each <p> that contains a <noscript>, replace its content with that of the <noscript>
+    function fixImages() {
+      const paragraphs = document.querySelectorAll('#fetched-content p');
+      paragraphs.forEach(p => {
+        const ns = p.querySelector('noscript');
+        if (ns && ns.innerHTML) {
+          p.innerHTML = ns.innerHTML;
+        }
+      });
+    }
+
     // Fetch the remote HTML from the Netlify function and insert it into the page.
     async function fetchAndDisplayHTML() {
       try {
-        // Build the function URL using the "name" parameter
+        // Build the function URL with the query parameter "name"
         const functionUrl = `/.netlify/functions/fetch?name=${encodeURIComponent(nameParam)}`;
         const response = await fetch(functionUrl);
         if (!response.ok) {
@@ -51,13 +60,15 @@
           return;
         }
         let html = await response.text();
-        // If baseUrl is available, inject a <base> tag into the <head> of the fetched HTML
+        // If a baseUrl is available, inject a <base> tag into the <head> of the fetched HTML so relative URLs work correctly.
         if (baseUrl) {
           html = html.replace(/<head>/i, `<head><base href="${baseUrl}">`);
         }
         const container = document.getElementById('fetched-content');
         if (container) {
           container.innerHTML = html;
+          // After inserting the HTML, replace each <p>'s content with its <noscript> content (if present)
+          fixImages();
         } else {
           displayError("Container element not found.");
         }
@@ -74,7 +85,7 @@
       }
     }
 
-    // Override console.error to also display errors on the page.
+    // Override console.error to display errors on the page.
     console.error = (error) => {
       const consoleDiv = document.getElementById('console-display');
       if (consoleDiv) {
@@ -82,7 +93,7 @@
       }
     };
 
-    // Override console.log to also display logs on the page.
+    // Override console.log to display logs on the page.
     console.log = (message) => {
       const consoleDiv = document.getElementById('console-display');
       if (consoleDiv) {
@@ -90,7 +101,7 @@
       }
     };
 
-    // Run the initialization: first update title/base then fetch and display the HTML.
+    // Initialize: first update title/baseUrl, then fetch and display the HTML content.
     async function init() {
       await setPageTitleAndBase();
       await fetchAndDisplayHTML();
