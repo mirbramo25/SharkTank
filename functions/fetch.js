@@ -1,7 +1,7 @@
 const fetch = require('node-fetch');
 
 exports.handler = async (event) => {
-  const targetURL = 'https://sharktankrecap.com/ilumi-light-bulbs-update-shark-tank-season-5/';
+  const targetURL = 'https://sharktankrecap.com/ilumi-light-bulbs-update-shark-tank-season-5/'; // Or your target URL
 
   try {
     const response = await fetch(targetURL);
@@ -18,10 +18,10 @@ exports.handler = async (event) => {
     return {
       statusCode: 200,
       body: html,
-      headers: { // Important: Add CORS headers if needed
-        'Content-Type': 'text/html', // Set the correct content type
-        'Access-Control-Allow-Origin': '*', // Or specify your domain: 'https://yourdomain.com'
-        'Access-Control-Allow-Methods': 'GET', // Add other methods if needed
+      headers: {
+        'Content-Type': 'text/html',
+        'Access-Control-Allow-Origin': '*', // Or your specific domain for production!
+        'Access-Control-Allow-Methods': 'GET',
       },
     };
   } catch (error) {
