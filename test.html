@@ -6,21 +6,22 @@
 <body>
 
   <div id="fetched-content">
-    <p>Loading content...</p> </div>
+    <p>Loading content...</p>
+  </div>
 
   <script>
-    async function fetchAndDisplayHTML(targetURL) {
+    async function fetchAndDisplayHTML() {
       try {
-        const response = await fetch(targetURL);
+        const response = await fetch('/.netlify/functions/fetch'); // Correct path!
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const html = await response.text();
-
         const container = document.getElementById('fetched-content');
         if (container) {
-          container.innerHTML = html; // Directly set innerHTML 
+          container.innerHTML = html;
         } else {
           console.error("Container element not found.");
         }
@@ -34,11 +35,9 @@
       }
     }
 
-    const targetURL = 'https://sharktankrecap.com/ilumi-light-bulbs-update-shark-tank-season-5/';
-    fetchAndDisplayHTML(targetURL);
+    fetchAndDisplayHTML(); // Call the function
 
   </script>
 
 </body>
 </html>
-
