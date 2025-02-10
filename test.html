@@ -11,31 +11,33 @@
 
   <script>
     async function fetchAndDisplayHTML() {
-      try {
-        const response = await fetch('/.netlify/functions/fetch'); // Correct path!
+  try {
+    const response = await fetch('/.netlify/functions/fetch');
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const html = await response.text();
-        const container = document.getElementById('fetched-content');
-        if (container) {
-          container.innerHTML = html;
-        } else {
-          console.error("Container element not found.");
-        }
-
-      } catch (error) {
-        console.error('Error fetching HTML:', error);
-        const container = document.getElementById('fetched-content');
-        if (container) {
-          container.innerHTML = "<p>Error loading content.</p>";
-        }
-      }
+    if (!response.ok) {
+      console.error("HTTP error! status:", response.status); // Log the error!
+      return; // Stop here if there's an error
     }
 
-    fetchAndDisplayHTML(); // Call the function
+    const data = await response.text(); // Get the response text (even if it's not HTML yet)
+    console.log("Response from function:", data); // Log the response!
+
+    const container = document.getElementById('fetched-content');
+    if (container) {
+      container.innerHTML = "<p>Data received. Check the console.</p>"; // Just show a message
+    }
+
+  } catch (error) {
+    console.error('Error fetching HTML:', error);
+    const container = document.getElementById('fetched-content');
+    if (container) {
+      container.innerHTML = "<p>Error loading content. Check the console.</p>";
+    }
+  }
+}
+
+fetchAndDisplayHTML();
+
 
   </script>
 
