@@ -52,6 +52,14 @@
         img.setAttribute('src', firstSrcsetUrl);
         // Update the src variable to the new value
         src = firstSrcsetUrl;
+      } else {
+        // If srcset is not present, check for data-src
+        const dataSrc = img.getAttribute('data-src');
+        if (dataSrc) {
+          img.setAttribute('src', dataSrc);
+          // Update the src variable to the new value
+          src = dataSrc;
+        }
       }
     }
 
