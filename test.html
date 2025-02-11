@@ -52,16 +52,15 @@
       });
     }
 
-    // Remove all <iframe> elements and any <noscript> that contains an <iframe>
+    // Remove all <iframe> elements and any <noscript> elements that contain an <iframe>
     function removeIframes() {
-      // Remove all iframe elements within the fetched content
+      // Remove all iframe elements within the fetched content.
       const iframes = document.querySelectorAll('#fetched-content iframe');
       iframes.forEach(iframe => iframe.remove());
 
-      // Remove any noscript elements that contain an iframe in their content.
+      // Remove any noscript elements that, when parsed, contain an iframe.
       const noscripts = document.querySelectorAll('#fetched-content noscript');
       noscripts.forEach(ns => {
-        // Create a temporary container to parse the inner HTML of the noscript
         const temp = document.createElement('div');
         temp.innerHTML = ns.innerHTML;
         if (temp.querySelector('iframe')) {
@@ -70,10 +69,34 @@
       });
     }
 
-    // Remove all div elements with the class "lasso-container"
+    // Remove all divs with the class 'lasso-container'
     function removeLassoContainers() {
-      const lassoContainers = document.querySelectorAll('#fetched-content .lasso-container');
-      lassoContainers.forEach(container => container.remove());
+      const lassoDivs = document.querySelectorAll('#fetched-content div.lasso-container');
+      lassoDivs.forEach(div => div.remove());
+    }
+
+    // Update image sources to remove any prefix before 'https://sharktankrecap.com/'
+    function updateImageSources() {
+      const images = document.querySelectorAll('#fetched-content img');
+      images.forEach(img => {
+        const src = img.getAttribute('src');
+        const targetSubstring = 'https://sharktankrecap.com/';
+        const index = src.indexOf(targetSubstring);
+        if (index > 0) {
+          const newSrc = src.substring(index);
+          img.setAttribute('src', newSrc);
+        }
+      });
+    }
+
+    // Update the href of the anchor element with rel="home" to the fetched URL
+    function updateHomeLinkHref(newUrl) {
+      const homeLink = document.querySelector('a[rel="home"]');
+      if (homeLink) {
+        homeLink.setAttribute('href', newUrl);
+      } else {
+        console.warn('No anchor element with rel="home" found.');
+      }
     }
 
     // Fetch the remote HTML from the Netlify function and insert it into the page.
@@ -88,19 +111,18 @@
           return;
         }
         let html = await response.text();
-        // If a baseUrl is available, inject a <base> tag into the <head> of the fetched HTML so relative URLs work correctly.
+        // If baseUrl is available, inject a <base> tag into the <head> of the fetched HTML.
         if (baseUrl) {
           html = html.replace(/<head>/i, `<head><base href="${baseUrl}">`);
+          updateHomeLinkHref(baseUrl); // Update the href of the home link
         }
         const container = document.getElementById('fetched-content');
         if (container) {
           container.innerHTML = html;
-          // Replace p content with working image from noscript (if available)
+          removeLassoContainers(); // Remove 'lasso-container' divs
           fixImages();
-          // Remove all iframes and noscript elements that contain an iframe.
           removeIframes();
-          // Remove all div elements with the class "lasso-container".
-          removeLassoContainers();
+          updateImageSources(); // Update image sources
         } else {
           displayError("Container element not found.");
         }
