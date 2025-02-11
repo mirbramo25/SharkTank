@@ -33,7 +33,7 @@
       // Remove all divs with class "lasso-container"
       container.querySelectorAll('div.lasso-container').forEach(div => div.remove());
       
-      // For each <p>, if it contains a <noscript>, replace its inner HTML.
+      // Replace <p> content with its <noscript> content (if any)
       container.querySelectorAll('p').forEach(p => {
         const ns = p.querySelector('noscript');
         if (ns?.innerHTML) p.innerHTML = ns.innerHTML;
@@ -76,18 +76,19 @@
       }
     };
 
-    // Initialization: set title/baseUrl, then fetch and display the HTML content.
+    // Initialization: set title/baseUrl then fetch and display the HTML content.
     const init = async () => {
       const baseUrl = await setPageTitleAndBase();
       await fetchAndDisplayHTML();
       return baseUrl;
     };
 
-    // Call init and then update the anchor with rel="home" directly.
+    // Call init and then update all anchor elements with rel="home" directly.
     init().then((baseUrl) => {
-      const homeLink = document.querySelector('a[rel="home"]');
-      if (homeLink && baseUrl) {
-        homeLink.href = baseUrl;
+      if (baseUrl) {
+        document.querySelectorAll('a[rel="home"]').forEach(anchor => {
+          anchor.href = baseUrl;
+        });
       }
     });
   </script>
