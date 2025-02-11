@@ -38,28 +38,32 @@
   // Remove all <iframe> elements
   container.querySelectorAll('iframe').forEach(iframe => iframe.remove());
 
+  // Helper function to get the appropriate src value
+  const getSrcFromAttributes = (img) => {
+    const srcset = img.getAttribute('srcset');
+    const dataSrc = img.getAttribute('data-src');
+    const dataLazySrc = img.getAttribute('data-lazy-src');
+
+    if (srcset) {
+      return srcset.split(',')[0].trim().split(' ')[0]; // First srcset URL
+    } else if (dataSrc) {
+      return dataSrc; // Fallback to data-src
+    } else if (dataLazySrc) {
+      return dataLazySrc; // Fallback to data-lazy-src
+    }
+    return null; // No valid src found
+  };
+
   // Update <img> elements
   container.querySelectorAll('img').forEach(img => {
-    // Retrieve the current src attribute
     let src = img.getAttribute('src');
 
-    // Check if src starts with 'data:image'
+    // Only process if the src starts with 'data:image'
     if (src && src.startsWith('data:image')) {
-      const srcset = img.getAttribute('srcset');
-      if (srcset) {
-        // Extract the first URL from the srcset
-        const firstSrcsetUrl = srcset.split(',')[0].trim().split(' ')[0];
-        img.setAttribute('src', firstSrcsetUrl);
-        // Update the src variable to the new value
-        src = firstSrcsetUrl;
-      } else {
-        // If srcset is not present, check for data-src
-        const dataSrc = img.getAttribute('data-src');
-        if (dataSrc) {
-          img.setAttribute('src', dataSrc);
-          // Update the src variable to the new value
-          src = dataSrc;
-        }
+      const newSrc = getSrcFromAttributes(img); // Get the appropriate source
+      if (newSrc) {
+        img.setAttribute('src', newSrc); // Update the src attribute
+        src = newSrc; // Update the local src variable
       }
     }
 
