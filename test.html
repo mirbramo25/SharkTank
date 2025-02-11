@@ -27,16 +27,13 @@
       }
     };
 
-    // Process the fetched HTML: remove unwanted elements, fix image sources, and update anchor hrefs
+    // start of process
     const processContent = () => {
   const container = document.getElementById('fetched-content');
   if (!container) return;
 
   // Remove all divs with class "lasso-container"
   container.querySelectorAll('div.lasso-container').forEach(div => div.remove());
-
-  // Remove all <iframe> elements
-  container.querySelectorAll('iframe').forEach(iframe => iframe.remove());
 
   // Helper function to get the appropriate src value
   const getSrcFromAttributes = (img) => {
@@ -81,7 +78,15 @@
       anchor.href = baseUrl;
     });
   }
-};
+
+  // Remove <iframe> elements that don't have src or whose src is not a YouTube link
+  container.querySelectorAll('iframe').forEach(iframe => {
+    const iframeSrc = iframe.getAttribute('src');
+    if (!iframeSrc || !iframeSrc.startsWith('https://www.youtube.com')) {
+      iframe.remove(); // Remove iframe if it doesn't have a src or is not a YouTube iframe
+    }
+  });
+};// end of process
 
     // Fetch remote HTML from the Netlify function and insert it into the page
     const fetchAndDisplayHTML = async () => {
