@@ -9,56 +9,65 @@
   </div>
 
   <script>
+    // Global variable to store the base URL
+    let baseUrl = null;
+
     // Get "name" parameter from URL; default to "Chocomize"
     const nameParam = new URLSearchParams(window.location.search).get('name') || 'Chocomize';
 
-    // Fetch Updates.json to set the document title and return the base URL.
+    // Fetch Updates.json to set the document title and baseUrl
     const setPageTitleAndBase = async () => {
       try {
         const res = await fetch('Updates.json');
         const data = await res.json();
         document.title = data[nameParam]?.title || document.title;
-        return data[nameParam]?.recap?.recapLink;
+        baseUrl = data[nameParam]?.recap?.recapLink || null;
       } catch (error) {
         console.error('Error fetching Updates.json:', error);
-        return null;
       }
     };
 
-    // Process the fetched HTML: remove unwanted elements and fix image sources.
+    // Process the fetched HTML: remove unwanted elements, fix image sources, and update anchor hrefs
     const processContent = () => {
       const container = document.getElementById('fetched-content');
       if (!container) return;
-      
+
       // Remove all divs with class "lasso-container"
       container.querySelectorAll('div.lasso-container').forEach(div => div.remove());
-      
+
       // Replace <p> content with its <noscript> content (if any)
       container.querySelectorAll('p').forEach(p => {
         const ns = p.querySelector('noscript');
         if (ns?.innerHTML) p.innerHTML = ns.innerHTML;
       });
-      
-      // Remove all <iframe> elements.
+
+      // Remove all <iframe> elements
       container.querySelectorAll('iframe').forEach(iframe => iframe.remove());
-      
-      // Remove any <noscript> that contains an <iframe>.
+
+      // Remove any <noscript> that contains an <iframe>
       container.querySelectorAll('noscript').forEach(ns => {
         const temp = document.createElement('div');
         temp.innerHTML = ns.innerHTML;
         if (temp.querySelector('iframe')) ns.remove();
       });
-      
-      // Update image sources: remove any prefix before 'https://sharktankrecap.com/'.
+
+      // Update image sources: remove any prefix before 'https://sharktankrecap.com/'
       container.querySelectorAll('img').forEach(img => {
         const src = img.getAttribute('src');
         const target = 'https://sharktankrecap.com/';
         const idx = src.indexOf(target);
         if (idx > 0) img.setAttribute('src', src.substring(idx));
       });
+
+      // Update all anchor elements with rel="home" to have href as baseUrl
+      if (baseUrl) {
+        container.querySelectorAll('a[rel="home"]').forEach(anchor => {
+          anchor.href = baseUrl;
+        });
+      }
     };
 
-    // Fetch remote HTML from the Netlify function and insert it into the page.
+    // Fetch remote HTML from the Netlify function and insert it into the page
     const fetchAndDisplayHTML = async () => {
       try {
         const funcUrl = `/.netlify/functions/fetch?name=${encodeURIComponent(nameParam)}`;
@@ -76,21 +85,14 @@
       }
     };
 
-    // Initialization: set title/baseUrl then fetch and display the HTML content.
+    // Initialization: set title and baseUrl, then fetch and display the HTML content
     const init = async () => {
-      const baseUrl = await setPageTitleAndBase();
+      await setPageTitleAndBase();
       await fetchAndDisplayHTML();
-      return baseUrl;
     };
 
-    // Call init and then update all anchor elements with rel="home" directly.
-    init().then((baseUrl) => {
-      if (baseUrl) {
-        document.querySelectorAll('a[rel="home"]').forEach(anchor => {
-          anchor.href = baseUrl;
-        });
-      }
-    });
+    // Call init to start the process
+    init();
   </script>
 </body>
 </html>
