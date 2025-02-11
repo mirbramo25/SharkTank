@@ -8,19 +8,17 @@
 </head>
 <body>
   <script>
-    // Function to get URL parameter value by name
     function getUrlParameter(name) {
       const urlParams = new URLSearchParams(window.location.search);
       return urlParams.get(name);
     }
 
-    const name = getUrlParameter('name'); // Get the 'name' parameter from the URL
+    const name = getUrlParameter('name');
 
     if (!name) {
       console.error('Name parameter is missing');
       document.body.innerHTML = 'Name parameter is missing';
     } else {
-      // Load data from Updates.json
       fetch('Updates.json')
         .then(response => response.json())
         .then(data => {
@@ -30,11 +28,8 @@
             return;
           }
 
-          // Set the title using data[name].title
           document.title = data[name].title || name;
 
-
-          // Handle recap content
           const recapBody = data[name]?.recap?.recapBody;
           if (recapBody) {
             const recapDiv = document.createElement('div');
@@ -42,15 +37,17 @@
             recapDiv.innerHTML = recapBody;
             document.body.appendChild(recapDiv);
 
-            // Find the first heading element within the recap content and modify its href
-            const firstHeadingRecap = recapDiv.querySelector('h1, h2, h3, h4, h5, h6'); // Select any heading
+            const firstHeadingRecap = recapDiv.querySelector('h1, h2, h3, h4, h5, h6');
+
             if (firstHeadingRecap) {
-              firstHeadingRecap.setAttribute('data-original-href', firstHeadingRecap.getAttribute('href')); // Store original href if it exists
-              firstHeadingRecap.setAttribute('href', `https://sharktankups.netlify.app/test.html${window.location.search}`);
+              const firstLinkInHeading = firstHeadingRecap.querySelector('a');
+
+              if (firstLinkInHeading) {
+                firstLinkInHeading.href = `https://sharktankups.netlify.app/test.html${window.location.search}`;
+              }
             }
           }
 
-          // Handle blog content  (This section is now unchanged)
           const blogBody = data[name]?.blog?.blogBody;
           if (blogBody) {
             const blogDiv = document.createElement('div');
