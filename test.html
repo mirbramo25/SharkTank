@@ -71,14 +71,6 @@
   }
 };
 
-  // Update all anchor elements with rel="home" to have href as baseUrl
-  if (baseUrl) {
-    container.querySelectorAll('a[rel="home"]').forEach(anchor => {
-      anchor.href = baseUrl;
-    });
-  }
-};
-
     // Fetch remote HTML from the Netlify function and insert it into the page
     const fetchAndDisplayHTML = async () => {
       try {
