@@ -52,15 +52,16 @@
       });
     }
 
-    // Remove all <iframe> elements and any <noscript> elements that contain an <iframe>
+    // Remove all <iframe> elements and any <noscript> that contains an <iframe>
     function removeIframes() {
-      // Remove all iframe elements within the fetched content.
+      // Remove all iframe elements within the fetched content
       const iframes = document.querySelectorAll('#fetched-content iframe');
       iframes.forEach(iframe => iframe.remove());
 
-      // Remove any noscript elements that, when parsed, contain an iframe.
+      // Remove any noscript elements that contain an iframe in their content.
       const noscripts = document.querySelectorAll('#fetched-content noscript');
       noscripts.forEach(ns => {
+        // Create a temporary container to parse the inner HTML of the noscript
         const temp = document.createElement('div');
         temp.innerHTML = ns.innerHTML;
         if (temp.querySelector('iframe')) {
@@ -69,45 +70,10 @@
       });
     }
 
-    // Remove all divs with the class 'lasso-container'
+    // Remove all div elements with the class "lasso-container"
     function removeLassoContainers() {
-      const lassoDivs = document.querySelectorAll('#fetched-content div.lasso-container');
-      lassoDivs.forEach(div => div.remove());
-    }
-
-    // Look for a heading element (h1–h6) that contains "shark", "tank" and "update"
-    // (case insensitive) and that has no text matching /Entrepreneua?rs?:/i in the content below it.
-    // If found, remove all visible content above that heading element.
-    function removeContentAboveQualifiedHeading() {
-      const container = document.getElementById('fetched-content');
-      if (!container) return;
-
-      // Query all heading elements inside the container.
-      const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
-      for (const heading of headings) {
-        const headingText = heading.textContent.toLowerCase();
-        if (headingText.includes("shark") && headingText.includes("tank") && headingText.includes("update")) {
-          // Collect the text from all elements following this heading.
-          let contentBelow = "";
-          let sibling = heading.nextElementSibling;
-          while (sibling) {
-            contentBelow += sibling.textContent;
-            sibling = sibling.nextElementSibling;
-          }
-          // If no match for /Entrepreneua?rs?:/i is found in the content below, remove all content above this heading.
-          const regex = /Entrepreneua?rs?:/i;
-          if (!regex.test(contentBelow)) {
-            // Remove all sibling nodes before this heading.
-            let child = container.firstElementChild;
-            while (child && child !== heading) {
-              let next = child.nextElementSibling;
-              child.remove();
-              child = next;
-            }
-            break; // Stop after processing the first matching heading.
-          }
-        }
-      }
+      const lassoContainers = document.querySelectorAll('#fetched-content .lasso-container');
+      lassoContainers.forEach(container => container.remove());
     }
 
     // Fetch the remote HTML from the Netlify function and insert it into the page.
@@ -122,17 +88,19 @@
           return;
         }
         let html = await response.text();
-        // If baseUrl is available, inject a <base> tag into the <head> of the fetched HTML.
+        // If a baseUrl is available, inject a <base> tag into the <head> of the fetched HTML so relative URLs work correctly.
         if (baseUrl) {
           html = html.replace(/<head>/i, `<head><base href="${baseUrl}">`);
         }
         const container = document.getElementById('fetched-content');
         if (container) {
           container.innerHTML = html;
-          removeLassoContainers(); // Remove 'lasso-container' divs
+          // Replace p content with working image from noscript (if available)
           fixImages();
+          // Remove all iframes and noscript elements that contain an iframe.
           removeIframes();
-          removeContentAboveQualifiedHeading();
+          // Remove all div elements with the class "lasso-container".
+          removeLassoContainers();
         } else {
           displayError("Container element not found.");
         }
