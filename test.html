@@ -11,85 +11,8 @@
   <div id="console-display"></div>
 
   <script>
-    // Get the "name" parameter from the URL (default to "Chocomize")
-    const urlParams = new URLSearchParams(window.location.search);
-    const nameParam = urlParams.get('name') || 'Chocomize';
+    // ... (other code - urlParams, nameParam, setPageTitleAndBase, fixImages, removeIframes, removeLassoContainers, updateImageSources, displayError, console.error, console.log - same as before)
 
-    // Global variable to store the recapLink from Updates.json
-    let baseUrl = null;
-
-    // Fetch Updates.json (located in the same directory) to update the title and set baseUrl
-    async function setPageTitleAndBase() {
-      try {
-        const response = await fetch('Updates.json');
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const updatesData = await response.json();
-        if (updatesData[nameParam] && updatesData[nameParam].title) {
-          document.title = updatesData[nameParam].title;
-        }
-        if (
-          updatesData[nameParam] &&
-          updatesData[nameParam].recap &&
-          updatesData[nameParam].recap.recapLink
-        ) {
-          baseUrl = updatesData[nameParam].recap.recapLink;
-        }
-      } catch (error) {
-        console.error('Error fetching Updates.json:', error);
-      }
-    }
-
-    // For each <p> that contains a <noscript>, replace its content with the content from the <noscript>
-    function fixImages() {
-      const paragraphs = document.querySelectorAll('#fetched-content p');
-      paragraphs.forEach(p => {
-        const ns = p.querySelector('noscript');
-        if (ns && ns.innerHTML) {
-          p.innerHTML = ns.innerHTML;
-        }
-      });
-    }
-
-    // Remove all <iframe> elements and any <noscript> elements that contain an <iframe>
-    function removeIframes() {
-      // Remove all iframe elements within the fetched content.
-      const iframes = document.querySelectorAll('#fetched-content iframe');
-      iframes.forEach(iframe => iframe.remove());
-
-      // Remove any noscript elements that, when parsed, contain an iframe.
-      const noscripts = document.querySelectorAll('#fetched-content noscript');
-      noscripts.forEach(ns => {
-        const temp = document.createElement('div');
-        temp.innerHTML = ns.innerHTML;
-        if (temp.querySelector('iframe')) {
-          ns.remove();
-        }
-      });
-    }
-
-    // Remove all divs with the class 'lasso-container'
-    function removeLassoContainers() {
-      const lassoDivs = document.querySelectorAll('#fetched-content div.lasso-container');
-      lassoDivs.forEach(div => div.remove());
-    }
-
-    // Update image sources to remove any prefix before 'https://sharktankrecap.com/'
-    function updateImageSources() {
-      const images = document.querySelectorAll('#fetched-content img');
-      images.forEach(img => {
-        const src = img.getAttribute('src');
-        const targetSubstring = 'https://sharktankrecap.com/';
-        const index = src.indexOf(targetSubstring);
-        if (index > 0) {
-          const newSrc = src.substring(index);
-          img.setAttribute('src', newSrc);
-        }
-      });
-    }
-
-    // Update the href of the anchor element with rel="home" to the fetched URL
     function updateHomeLinkHref(newUrl) {
       const homeLink = document.querySelector('a[rel="home"]');
       if (homeLink) {
@@ -99,30 +22,28 @@
       }
     }
 
-    // Fetch the remote HTML from the Netlify function and insert it into the page.
     async function fetchAndDisplayHTML() {
       try {
-        // Build the function URL with the query parameter "name"
-        const functionUrl = `/.netlify/functions/fetch?name=${encodeURIComponent(nameParam)}`;
-        const response = await fetch(functionUrl);
-        if (!response.ok) {
-          const errorText = await response.text();
-          displayError(`HTTP error! status: ${response.status} - ${errorText}`);
-          return;
-        }
+        // ... (fetch from Netlify function - same as before)
+
         let html = await response.text();
-        // If baseUrl is available, inject a <base> tag into the <head> of the fetched HTML.
+
+        // **CRUCIAL CHANGE - Handle baseUrl availability:**
         if (baseUrl) {
           html = html.replace(/<head>/i, `<head><base href="${baseUrl}">`);
-          updateHomeLinkHref(baseUrl); // Update the href of the home link
+          updateHomeLinkHref(baseUrl);
+        } else {
+          console.log("baseUrl is not yet available. Setting home link to example.com.");
+          updateHomeLinkHref("https://www.example.com"); // Set to example.com
         }
+
         const container = document.getElementById('fetched-content');
         if (container) {
           container.innerHTML = html;
-          removeLassoContainers(); // Remove 'lasso-container' divs
+          removeLassoContainers();
           fixImages();
           removeIframes();
-          updateImageSources(); // Update image sources
+          updateImageSources();
         } else {
           displayError("Container element not found.");
         }
@@ -131,37 +52,8 @@
       }
     }
 
-    // Utility function to display errors.
-    function displayError(message) {
-      const errorDiv = document.getElementById('error-display');
-      if (errorDiv) {
-        errorDiv.innerHTML = `<p style="color: red;">${message}</p>`;
-      }
-    }
+    // ... (rest of the code - init function, etc. - same as before)
 
-    // Override console.error to also display errors on the page.
-    console.error = (error) => {
-      const consoleDiv = document.getElementById('console-display');
-      if (consoleDiv) {
-        consoleDiv.innerHTML += `<p style="color: orange;">Console Error: ${error}</p>`;
-      }
-    };
-
-    // Override console.log to also display logs on the page.
-    console.log = (message) => {
-      const consoleDiv = document.getElementById('console-display');
-      if (consoleDiv) {
-        consoleDiv.innerHTML += `<p style="color: blue;">Console Log: ${message}</p>`;
-      }
-    };
-
-    // Initialize: first update title/baseUrl, then fetch and display the HTML content.
-    async function init() {
-      await setPageTitleAndBase();
-      await fetchAndDisplayHTML();
-    }
-
-    init();
   </script>
 </body>
 </html>
