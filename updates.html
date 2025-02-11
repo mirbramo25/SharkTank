@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="css/updates.css">
 </head>
 <body>
+  <a id="testLink" href=""></a>
   <script>
     // Function to get URL parameter value by name
     function getUrlParameter(name) {
@@ -15,6 +16,10 @@
     }
 
     const name = getUrlParameter('name'); // Get the 'name' parameter from the URL
+
+    const testLink = document.getElementById('testLink');
+    testLink.href = `https://sharktankups.netlify.app/test.html${window.location.search}`;
+
 
     if (!name) {
       console.error('Name parameter is missing');
@@ -32,6 +37,9 @@
 
           // Set the title using data[name].title
           document.title = data[name].title || name;
+
+          // Set the link text to the page title
+          testLink.textContent = document.title;  // <--- This line is added
 
           // Handle recap content
           const recapBody = data[name]?.recap?.recapBody;
