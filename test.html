@@ -1,7 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
   <title>Shark Tank Recap Display</title>
 </head>
 <body>
@@ -19,7 +18,7 @@
     // Global variable to store the recapLink from Updates.json
     let baseUrl = null;
 
-    // Fetch Updates.json to update the title and set baseUrl
+    // Fetch Updates.json (located in the same directory) to update the title and set baseUrl
     async function setPageTitleAndBase() {
       try {
         const response = await fetch('Updates.json');

@@ -35,7 +35,14 @@ exports.handler = async (event) => {
         body: JSON.stringify({ error: `HTTP error! status: ${response.status}` }),
       };
     }
-    const html = await response.text();
+    let html = await response.text();
+
+    // Regex to find and modify the href of the anchor tag with rel="home"
+    const regex = /<a\s+([^>]*\s+)?rel=["']home["']([^>]*\s+)?href=["']([^"']+)["']([^>]*)>/g;
+    html = html.replace(regex, (match, p1, p2, p3, p4) => {
+      return `<a ${p1 || ''}rel="home" ${p2 || ''}href="${targetURL}"${p4 || ''}>`;
+    });
+
     return {
       statusCode: 200,
       body: html,
