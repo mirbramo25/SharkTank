@@ -35,13 +35,6 @@
   // Remove all divs with class "lasso-container"
   container.querySelectorAll('div.lasso-container').forEach(div => div.remove());
 
-  // Replace <noscript> content with its parsed HTML content
-  container.querySelectorAll('noscript').forEach(ns => {
-    const temp = document.createElement('div');
-    temp.innerHTML = ns.innerHTML;
-    ns.replaceWith(...temp.childNodes);
-  });
-
   // Remove all <iframe> elements
   container.querySelectorAll('iframe').forEach(iframe => iframe.remove());
 
@@ -69,6 +62,14 @@
       img.setAttribute('src', src.substring(idx));
     }
   });
+
+  // Update all anchor elements with rel="home" to have href as baseUrl
+  if (baseUrl) {
+    container.querySelectorAll('a[rel="home"]').forEach(anchor => {
+      anchor.href = baseUrl;
+    });
+  }
+};
 
   // Update all anchor elements with rel="home" to have href as baseUrl
   if (baseUrl) {
