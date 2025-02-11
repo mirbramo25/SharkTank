@@ -29,43 +29,54 @@
 
     // Process the fetched HTML: remove unwanted elements, fix image sources, and update anchor hrefs
     const processContent = () => {
-      const container = document.getElementById('fetched-content');
-      if (!container) return;
+  const container = document.getElementById('fetched-content');
+  if (!container) return;
 
-      // Remove all divs with class "lasso-container"
-      container.querySelectorAll('div.lasso-container').forEach(div => div.remove());
+  // Remove all divs with class "lasso-container"
+  container.querySelectorAll('div.lasso-container').forEach(div => div.remove());
 
-      // Replace <p> content with its <noscript> content (if any)
-      container.querySelectorAll('p').forEach(p => {
-        const ns = p.querySelector('noscript');
-        if (ns?.innerHTML) p.innerHTML = ns.innerHTML;
-      });
+  // Replace <noscript> content with its parsed HTML content
+  container.querySelectorAll('noscript').forEach(ns => {
+    const temp = document.createElement('div');
+    temp.innerHTML = ns.innerHTML;
+    ns.replaceWith(...temp.childNodes);
+  });
 
-      // Remove all <iframe> elements
-      container.querySelectorAll('iframe').forEach(iframe => iframe.remove());
+  // Remove all <iframe> elements
+  container.querySelectorAll('iframe').forEach(iframe => iframe.remove());
 
-      // Remove any <noscript> that contains an <iframe>
-      container.querySelectorAll('noscript').forEach(ns => {
-        const temp = document.createElement('div');
-        temp.innerHTML = ns.innerHTML;
-        if (temp.querySelector('iframe')) ns.remove();
-      });
+  // Update <img> elements
+  container.querySelectorAll('img').forEach(img => {
+    // Retrieve the current src attribute
+    let src = img.getAttribute('src');
 
-      // Update image sources: remove any prefix before 'https://sharktankrecap.com/'
-      container.querySelectorAll('img').forEach(img => {
-        const src = img.getAttribute('src');
-        const target = 'https://sharktankrecap.com/';
-        const idx = src.indexOf(target);
-        if (idx > 0) img.setAttribute('src', src.substring(idx));
-      });
-
-      // Update all anchor elements with rel="home" to have href as baseUrl
-      if (baseUrl) {
-        container.querySelectorAll('a[rel="home"]').forEach(anchor => {
-          anchor.href = baseUrl;
-        });
+    // Check if src starts with 'data:image'
+    if (src && src.startsWith('data:image')) {
+      const srcset = img.getAttribute('srcset');
+      if (srcset) {
+        // Extract the first URL from the srcset
+        const firstSrcsetUrl = srcset.split(',')[0].trim().split(' ')[0];
+        img.setAttribute('src', firstSrcsetUrl);
+        // Update the src variable to the new value
+        src = firstSrcsetUrl;
       }
-    };
+    }
+
+    // Apply existing logic to adjust the src
+    const target = 'https://sharktankrecap.com/';
+    const idx = src.indexOf(target);
+    if (idx > 0) {
+      img.setAttribute('src', src.substring(idx));
+    }
+  });
+
+  // Update all anchor elements with rel="home" to have href as baseUrl
+  if (baseUrl) {
+    container.querySelectorAll('a[rel="home"]').forEach(anchor => {
+      anchor.href = baseUrl;
+    });
+  }
+};
 
     // Fetch remote HTML from the Netlify function and insert it into the page
     const fetchAndDisplayHTML = async () => {
