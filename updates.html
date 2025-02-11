@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="css/updates.css">
 </head>
 <body>
-  <a id="testLink" href=""></a>
   <script>
     // Function to get URL parameter value by name
     function getUrlParameter(name) {
@@ -16,10 +15,6 @@
     }
 
     const name = getUrlParameter('name'); // Get the 'name' parameter from the URL
-
-    const testLink = document.getElementById('testLink');
-    testLink.href = `https://sharktankups.netlify.app/test.html${window.location.search}`;
-
 
     if (!name) {
       console.error('Name parameter is missing');
@@ -38,8 +33,6 @@
           // Set the title using data[name].title
           document.title = data[name].title || name;
 
-          // Set the link text to the page title
-          testLink.textContent = document.title;  // <--- This line is added
 
           // Handle recap content
           const recapBody = data[name]?.recap?.recapBody;
@@ -48,9 +41,16 @@
             recapDiv.id = 'recap';
             recapDiv.innerHTML = recapBody;
             document.body.appendChild(recapDiv);
+
+            // Find the first heading element within the recap content and modify its href
+            const firstHeadingRecap = recapDiv.querySelector('h1, h2, h3, h4, h5, h6'); // Select any heading
+            if (firstHeadingRecap) {
+              firstHeadingRecap.setAttribute('data-original-href', firstHeadingRecap.getAttribute('href')); // Store original href if it exists
+              firstHeadingRecap.setAttribute('href', `https://sharktankups.netlify.app/test.html${window.location.search}`);
+            }
           }
 
-          // Handle blog content
+          // Handle blog content  (This section is now unchanged)
           const blogBody = data[name]?.blog?.blogBody;
           if (blogBody) {
             const blogDiv = document.createElement('div');
