@@ -81,6 +81,16 @@
         });
       }
 
+      // Update all anchor elements with rel="tag" whose inner text starts with "SEASON" followed by a space and a one or two digit number.
+      container.querySelectorAll('a[rel="tag"]').forEach(anchor => {
+        // Regex: starts with "SEASON", case-insensitive, followed by one or more whitespace characters and then a one or two digit number.
+        const match = anchor.textContent.match(/^SEASON\s+(\d{1,2})/i);
+        if (match) {
+          const seasonNum = match[1];
+          anchor.href = "S" + seasonNum + ".html";
+        }
+      });
+
       // Remove <iframe> elements that don't have src or whose src is not a YouTube link
       container.querySelectorAll('iframe').forEach(iframe => {
         const iframeSrc = iframe.getAttribute('src');
