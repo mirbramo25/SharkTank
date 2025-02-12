@@ -4,10 +4,6 @@
   <title>Shark Tank Recap Display</title>
 </head>
 <body>
-  <div id="fetched-content">
-    <p>Loading content...</p>
-  </div>
-
   <script>
     // Global variable to store the base URL
     let baseUrl = null;
@@ -27,92 +23,91 @@
       }
     };
 
-    // start of process
+    // Modify elements in the (new) document
     const processContent = () => {
-  const container = document.getElementById('fetched-content');
-  if (!container) return;
+      // Use the entire body of the new document
+      const container = document.body;
 
-  // Remove all divs with class "lasso-container"
-  container.querySelectorAll('div.lasso-container').forEach(div => div.remove());
+      // Remove all divs with class "lasso-container"
+      container.querySelectorAll('div.lasso-container').forEach(div => div.remove());
 
-  // Helper function to get the appropriate src value
-  const getSrcFromAttributes = (img) => {
-    const srcset = img.getAttribute('srcset');
-    const dataSrc = img.getAttribute('data-src');
-    const dataLazySrc = img.getAttribute('data-lazy-src');
+      // Helper function to get the appropriate src value
+      const getSrcFromAttributes = (img) => {
+        const srcset = img.getAttribute('srcset');
+        const dataSrc = img.getAttribute('data-src');
+        const dataLazySrc = img.getAttribute('data-lazy-src');
 
-    if (srcset) {
-      return srcset.split(',')[0].trim().split(' ')[0]; // First srcset URL
-    } else if (dataSrc) {
-      return dataSrc; // Fallback to data-src
-    } else if (dataLazySrc) {
-      return dataLazySrc; // Fallback to data-lazy-src
-    }
-    return null; // No valid src found
-  };
+        if (srcset) {
+          return srcset.split(',')[0].trim().split(' ')[0];
+        } else if (dataSrc) {
+          return dataSrc;
+        } else if (dataLazySrc) {
+          return dataLazySrc;
+        }
+        return null;
+      };
 
-  // Update <img> elements
-  container.querySelectorAll('img').forEach(img => {
-    let src = img.getAttribute('src');
+      // Update <img> elements
+      container.querySelectorAll('img').forEach(img => {
+        let src = img.getAttribute('src');
 
-    // Only process if the src starts with 'data:image'
-    if (src && src.startsWith('data:image')) {
-      const newSrc = getSrcFromAttributes(img); // Get the appropriate source
-      if (newSrc) {
-        img.setAttribute('src', newSrc); // Update the src attribute
-        src = newSrc; // Update the local src variable
+        // Only process if the src starts with 'data:image'
+        if (src && src.startsWith('data:image')) {
+          const newSrc = getSrcFromAttributes(img);
+          if (newSrc) {
+            img.setAttribute('src', newSrc);
+            src = newSrc;
+          }
+        }
+
+        // Adjust src if it contains the target string
+        const target = 'https://sharktankrecap.com/';
+        const idx = src.indexOf(target);
+        if (idx > 0) {
+          img.setAttribute('src', src.substring(idx));
+        }
+      });
+
+      // Update all anchor elements with rel="home" to have href as baseUrl
+      if (baseUrl) {
+        container.querySelectorAll('a[rel="home"]').forEach(anchor => {
+          anchor.href = baseUrl;
+        });
       }
-    }
 
-    // Apply existing logic to adjust the src
-    const target = 'https://sharktankrecap.com/';
-    const idx = src.indexOf(target);
-    if (idx > 0) {
-      img.setAttribute('src', src.substring(idx));
-    }
-  });
+      // Remove <iframe> elements that don't have src or whose src is not a YouTube link
+      container.querySelectorAll('iframe').forEach(iframe => {
+        const iframeSrc = iframe.getAttribute('src');
+        if (!iframeSrc || !iframeSrc.startsWith('https://www.youtube.com')) {
+          iframe.remove();
+        }
+      });
+    };
 
-  // Update all anchor elements with rel="home" to have href as baseUrl
-  if (baseUrl) {
-    container.querySelectorAll('a[rel="home"]').forEach(anchor => {
-      anchor.href = baseUrl;
-    });
-  }
-
-  // Remove <iframe> elements that don't have src or whose src is not a YouTube link
-  container.querySelectorAll('iframe').forEach(iframe => {
-    const iframeSrc = iframe.getAttribute('src');
-    if (!iframeSrc || !iframeSrc.startsWith('https://www.youtube.com')) {
-      iframe.remove(); // Remove iframe if it doesn't have a src or is not a YouTube iframe
-    }
-  });
-};// end of process
-
-    // Fetch remote HTML from the Netlify function and insert it into the page
-    const fetchAndDisplayHTML = async () => {
+    // Fetch remote HTML and replace the entire document with it
+    const fetchAndReplaceHTML = async () => {
       try {
         const funcUrl = `/.netlify/functions/fetch?name=${encodeURIComponent(nameParam)}`;
         const res = await fetch(funcUrl);
         const html = await res.text();
-        const container = document.getElementById('fetched-content');
-        if (container) {
-          container.innerHTML = html;
-          processContent();
-        } else {
-          console.error("Container element not found.");
-        }
+        // Parse the fetched HTML string into a document
+        const parser = new DOMParser();
+        const newDoc = parser.parseFromString(html, 'text/html');
+        // Replace the current document's root (<html>) with the fetched one.
+        document.replaceChild(newDoc.documentElement, document.documentElement);
+        // Now that the new document is in place, modify its content as needed.
+        processContent();
       } catch (error) {
         console.error('Error fetching HTML:', error);
       }
     };
 
-    // Initialization: set title and baseUrl, then fetch and display the HTML content
+    // Initialization: set title and baseUrl, then fetch and replace the HTML content
     const init = async () => {
       await setPageTitleAndBase();
-      await fetchAndDisplayHTML();
+      await fetchAndReplaceHTML();
     };
 
-    // Call init to start the process
     init();
   </script>
 </body>
