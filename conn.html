@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NYT Connections Items</title>
+</head>
+<body>
+  <h1>NYT Connections Items</h1>
+  <pre id="output">Loading...</pre>
+
+  <script>
+    fetch('/.netlify/functions/fetchConnections')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('output').textContent = JSON.stringify(data.items, null, 2);
+      })
+      .catch(err => {
+        document.getElementById('output').textContent = 'Error: ' + err;
+      });
+  </script>
+</body>
+</html>
