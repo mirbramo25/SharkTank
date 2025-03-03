@@ -1,19 +1,19 @@
 const playwright = require('playwright-aws-lambda');
 
 exports.handler = async function(event, context) {
-  let browser = null;
+  let browser;
   try {
-    browser = await playwright.launchChromium();
+    browser = await playwright.launchChromium({ slowMo: 100 });
     const page = await browser.newPage();
 
-    await page.goto('https://www.nytimes.com/games/connections', { waitUntil: 'networkidle' });
+    // Increase navigation timeout to prevent early termination
+    await page.goto('https://www.nytimes.com/games/connections', { waitUntil: 'domcontentloaded', timeout: 30000 });
 
-    // Click the "Play" button
-    await page.waitForSelector('button[aria-label="Play"]');
+    // Click the "Play" button and wait for elements
+    await page.waitForSelector('button[aria-label="Play"]', { timeout: 10000 });
     await page.click('button[aria-label="Play"]');
 
-    // Wait for the 16 puzzle elements to load
-    await page.waitForSelector('[data-flip-id]', { timeout: 10000 });
+    await page.waitForSelector('[data-flip-id]', { timeout: 15000 });
 
     const items = await page.evaluate(() => {
       return Array.from(document.querySelectorAll('[data-flip-id]')).map(el => el.innerText.trim());
