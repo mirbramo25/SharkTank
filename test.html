@@ -79,6 +79,11 @@
         container.querySelectorAll('a[rel="home"]').forEach(anchor => {
           anchor.href = baseUrl;
         });
+        let comp = document.querySelector('a[rel="tag"]');
+
+        if (comp) {
+          comp.href = baseUrl;
+        }
       }
 
       // Update all anchor elements with rel="tag" whose inner text starts with "SEASON" followed by a space and a one or two digit number.
