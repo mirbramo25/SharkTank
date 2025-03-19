@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "node-fetch": "^3.3.2",
-    "playwright-aws-lambda": "^0.11.0"
+    "node-fetch": "^3.3.2"
   }
 }
