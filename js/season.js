@@ -31,6 +31,7 @@
                 .replace(/&#8217;/g, "'")
                 .replace(/[\u2018\u2019]/g, "'")
                 .replace(/&#038;/g, "and")
+                .replace(/&amp;/g, "and")
                 .replace(/ &#8211;/g, "")
                 .replace(/\./g, "")
                 .trim();
