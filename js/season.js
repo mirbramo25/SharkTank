@@ -20,19 +20,27 @@
                 next.querySelector("a.reddit")
               ) return;
 
-              // title up to last space
+              // original title up to last space
               const fullTitle = anchor.title || "";
               const idx = fullTitle.lastIndexOf(" ");
               const currTitle =
                 idx > 0 ? fullTitle.slice(0, idx) : fullTitle;
 
-              const link = (data[currSeason] || {})[currTitle];
+              // clean it for JSON lookup
+              const cleanTitle = currTitle
+                .replace(/&#8217;/g, "'")
+                .replace(/&#038;/g, "and")
+                .replace(/ &#8211;/g, "")
+                .replace(/\./g, "")
+                .trim();
+
+              const link = (data[currSeason] || {})[cleanTitle];
               if (link) {
                 const sib = el.cloneNode(true);
                 const sibA = sib.querySelector("a");
-                sibA.className = "reddit";
-                sibA.href = link;
-                sibA.title = `${currTitle} REDDIT`;
+                sibA.className   = "reddit";
+                sibA.href        = link;
+                sibA.title       = `${currTitle} REDDIT`;
                 sibA.textContent = `${currTitle} REDDIT`;
                 el.insertAdjacentElement("afterend", sib);
               }
@@ -53,9 +61,7 @@
       link.addEventListener("click", event => {
         event.preventDefault();
         const target = document.querySelector(`#ep${i}`);
-        if (target) {
-          target.scrollIntoView({ behavior: "smooth" });
-        }
+        if (target) target.scrollIntoView({ behavior: "smooth" });
       });
       container.appendChild(link);
     }
