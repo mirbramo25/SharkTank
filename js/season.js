@@ -28,11 +28,9 @@
 
               // clean it for JSON lookup
               const cleanTitle = currTitle
-                .replace(/&#8217;/g, "'")
-                .replace(/[\u2018\u2019]/g, "'")
+                .replace(/[\u2018\u2019]|&#8217;/g, "'")
                 .replace(/&(#038|amp);|&/g, "and")
-                .replace(/ &#8211;/g, "")
-                .replace(/\./g, "")
+                .replace(/\.|—| &#8211;/g, "")
                 .trim();
 
               const link = (data[currSeason] || {})[cleanTitle];
