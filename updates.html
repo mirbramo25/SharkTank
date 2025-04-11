@@ -19,11 +19,10 @@
       console.error('Name parameter is missing');
       document.body.innerHTML = 'Name parameter is missing';
     } else {
-      fetch('Updates By Season.json')
+      fetch('Updates.json')
         .then(response => response.json())
         .then(data => {
           let entry = null;
-
           const keys = Object.keys(data);
           const isNested = keys.length && /^s\d+$/i.test(keys[0]);
 
@@ -60,7 +59,7 @@
               const firstLinkInHeading = firstHeadingRecap.querySelector('a');
               if (firstLinkInHeading) {
                 firstLinkInHeading.href = testPageLink;
-                firstLinkInHeading.textContent = testPageLink;
+                // do not change textContent here
               }
             }
           } else if (recapLink) {
