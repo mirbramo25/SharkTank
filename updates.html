@@ -19,40 +19,84 @@
       console.error('Name parameter is missing');
       document.body.innerHTML = 'Name parameter is missing';
     } else {
-      fetch('Updates.json')
+      fetch('Updates By Season.json')
         .then(response => response.json())
         .then(data => {
-          if (!data[name]) {
+          let entry = null;
+
+          const keys = Object.keys(data);
+          const isNested = keys.length && /^s\d+$/i.test(keys[0]);
+
+          if (isNested) {
+            for (const season in data) {
+              if (data[season][name]) {
+                entry = data[season][name];
+                break;
+              }
+            }
+          } else {
+            entry = data[name];
+          }
+
+          if (!entry) {
             console.error(`No data found for '${name}' in Updates.json`);
             document.body.innerHTML = `No data found for '${name}'`;
             return;
           }
 
-          document.title = data[name].title || name;
+          document.title = entry.title || name;
 
-          const recapBody = data[name]?.recap?.recapBody;
+          const recapBody = entry?.recap?.recapBody;
+          const recapLink = entry?.recap?.recapLink;
+          const testPageLink = `https://sharktankups.netlify.app/test.html${window.location.search}`;
+          const recapDiv = document.createElement('div');
+          recapDiv.id = 'recap';
+
           if (recapBody) {
-            const recapDiv = document.createElement('div');
-            recapDiv.id = 'recap';
             recapDiv.innerHTML = recapBody;
-            document.body.appendChild(recapDiv);
 
             const firstHeadingRecap = recapDiv.querySelector('h1, h2, h3, h4, h5, h6');
-
             if (firstHeadingRecap) {
               const firstLinkInHeading = firstHeadingRecap.querySelector('a');
-
               if (firstLinkInHeading) {
-                firstLinkInHeading.href = `https://sharktankups.netlify.app/test.html${window.location.search}`;
+                firstLinkInHeading.href = testPageLink;
+                firstLinkInHeading.textContent = testPageLink;
               }
             }
+          } else if (recapLink) {
+            const link1 = document.createElement('a');
+            link1.href = recapLink;
+            link1.textContent = recapLink;
+            link1.style.display = 'block';
+
+            const link2 = document.createElement('a');
+            link2.href = testPageLink;
+            link2.textContent = testPageLink;
+            link2.style.display = 'block';
+
+            recapDiv.appendChild(link1);
+            recapDiv.appendChild(link2);
           }
 
-          const blogBody = data[name]?.blog?.blogBody;
+          if (recapDiv.hasChildNodes()) {
+            document.body.appendChild(recapDiv);
+          }
+
+          const blogBody = entry?.blog?.blogBody;
+          const blogLink = entry?.blog?.blogLink;
+          const blogDiv = document.createElement('div');
+          blogDiv.id = 'blog';
+
           if (blogBody) {
-            const blogDiv = document.createElement('div');
-            blogDiv.id = 'blog';
             blogDiv.innerHTML = blogBody;
+          } else if (blogLink) {
+            const link = document.createElement('a');
+            link.href = blogLink;
+            link.textContent = blogLink;
+            blogDiv.appendChild(link);
+          }
+
+          if (blogDiv.hasChildNodes()) {
             document.body.appendChild(blogDiv);
           }
         })
