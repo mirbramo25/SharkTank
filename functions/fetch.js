@@ -1,6 +1,3 @@
-// Load the Updates.json file from the parent folder
-const updates = require('../Updates.json');
-
 exports.handler = async (event) => {
   // Dynamically import node-fetch
   const fetch = (...args) =>
@@ -9,12 +6,13 @@ exports.handler = async (event) => {
   // Extract the "link" and "name" query parameters from the request
   const { link, name } = event.queryStringParameters || {};
 
-  // If "link" parameter exists, use it as the target URL and ignore "name"
   let targetURL;
   if (link) {
+    // If "link" exists, use it directly
     targetURL = link;
   } else if (name) {
-    // Look up the update entry for the given name in the JSON file
+    // Only require Updates.json if "name" parameter is provided
+    const updates = require('../Updates.json');
     const updateEntry = updates[name];
     if (!updateEntry || !updateEntry.recap || !updateEntry.recap.recapLink) {
       return {
