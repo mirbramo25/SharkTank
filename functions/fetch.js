@@ -27,7 +27,7 @@ exports.handler = async (event) => {
       body: JSON.stringify({ error: 'Missing query parameter: provide either "link" or "name".' }),
     };
   }
-
+console.log(targetURL);
   try {
     const response = await fetch(targetURL);
     if (!response.ok) {
