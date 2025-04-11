@@ -47,10 +47,10 @@ console.log(targetURL);
       },
     };
   } catch (error) {
-    console.error('Error fetching HTML:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Error loading content.' }),
-    };
+    console.error('Error fetching HTML:', error.message, error.stack);
+  return {
+    statusCode: 500,
+    body: JSON.stringify({ error: 'Error loading content.' }),
+  };
   }
 };
