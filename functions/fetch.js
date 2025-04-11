@@ -1,5 +1,5 @@
 // Load the Updates.json file from the parent folder
-const updates = require('Updates.json');
+const updates = require('../Updates.json');
 
 exports.handler = async (event) => {
   // Dynamically import node-fetch
