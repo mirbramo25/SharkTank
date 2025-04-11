@@ -15,6 +15,9 @@
     const setPageTitleAndBase = async () => {
       try {
         const res = await fetch('Updates.json');
+        if (!res.ok) {
+          throw new Error(`HTTP error: ${res.status}`);
+        }
         const data = await res.json();
         // Store the title from JSON; if absent, newTitle remains null
         newTitle = data[nameParam]?.title || null;
@@ -37,7 +40,7 @@
       // Remove all divs with class "lasso-container"
       container.querySelectorAll('div.lasso-container').forEach(div => div.remove());
 
-      // Helper function to get the appropriate src value
+      // Helper function to get the appropriate src value for images
       const getSrcFromAttributes = (img) => {
         const srcset = img.getAttribute('srcset');
         const dataSrc = img.getAttribute('data-src');
@@ -56,7 +59,6 @@
       // Update <img> elements
       container.querySelectorAll('img').forEach(img => {
         let src = img.getAttribute('src');
-
         // Only process if the src starts with 'data:image'
         if (src && src.startsWith('data:image')) {
           const newSrc = getSrcFromAttributes(img);
@@ -65,7 +67,6 @@
             src = newSrc;
           }
         }
-
         // Adjust src if it contains the target string
         const target = 'https://sharktankrecap.com/';
         const idx = src.indexOf(target);
@@ -79,8 +80,7 @@
         container.querySelectorAll('a[rel="home"]').forEach(anchor => {
           anchor.href = baseUrl;
         });
-        let comp = document.querySelector('a[rel="tag"]');
-
+        const comp = document.querySelector('a[rel="tag"]');
         if (comp) {
           comp.href = baseUrl;
         }
@@ -110,6 +110,9 @@
       try {
         const funcUrl = `/.netlify/functions/fetch?name=${encodeURIComponent(nameParam)}`;
         const res = await fetch(funcUrl);
+        if (!res.ok) {
+          throw new Error(`HTTP error: ${res.status}`);
+        }
         const html = await res.text();
         // Parse the fetched HTML string into a document
         const parser = new DOMParser();
@@ -120,6 +123,8 @@
         processContent();
       } catch (error) {
         console.error('Error fetching HTML:', error);
+        // Optionally display an error message to users:
+        document.body.innerHTML = '<h2>Error loading content. Please try again later.</h2>';
       }
     };
 
