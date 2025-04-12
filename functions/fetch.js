@@ -5,11 +5,12 @@ exports.handler = async (event) => {
 
   // Extract the "link" and "name" query parameters from the request
   const { link, name } = event.queryStringParameters || {};
-
+console.log(event.queryStringParameters);
   let targetURL;
   if (link) {
     // If "link" exists, use it directly
     targetURL = link;
+    console.log(targetURL);
   } else if (name) {
     // Only require Updates.json if "name" parameter is provided
     const updates = require('../Updates.json');
