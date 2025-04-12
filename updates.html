@@ -19,7 +19,7 @@
       console.error('Name parameter is missing');
       document.body.innerHTML = 'Name parameter is missing';
     } else {
-      fetch('Updates.json')
+      fetch('Updates By Season.json')
         .then(response => response.json())
         .then(data => {
           let entry = null;
