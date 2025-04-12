@@ -5,98 +5,63 @@
 </head>
 <body>
   <script>
-    // Global variables to store the base URL and the new title
-    let baseUrl = null;
+    // Get "link" parameter from URL
+    const recapLink = new URLSearchParams(window.location.search).get('link');
+
+    if (!recapLink) {
+      document.body.innerHTML = '<h2>Missing "link" parameter in URL.</h2>';
+      throw new Error('Missing "link" parameter');
+    }
+
+    // Global variable for document title update
     let newTitle = null;
-    // Get "name" parameter from URL; default to "Chocomize"
-    const nameParam = new URLSearchParams(window.location.search).get('name') || 'Chocomize';
 
-    // Fetch Updates.json to store the title and baseUrl
-    const setPageTitleAndBase = async () => {
-      try {
-        const res = await fetch('Updates.json');
-        if (!res.ok) {
-          throw new Error(`HTTP error: ${res.status}`);
-        }
-        const data = await res.json();
-        // Store the title from JSON; if absent, newTitle remains null
-        newTitle = data[nameParam]?.title || null;
-        baseUrl = data[nameParam]?.recap?.recapLink || null;
-      } catch (error) {
-        console.error('Error fetching Updates.json:', error);
-      }
-    };
-
-    // Modify elements in the (new) document
     const processContent = () => {
-      // If newTitle is provided, update the document title
       if (newTitle !== null) {
         document.title = newTitle;
       }
 
-      // Use the entire body of the new document
       const container = document.body;
 
-      // Remove all divs with class "lasso-container"
       container.querySelectorAll('div.lasso-container').forEach(div => div.remove());
 
-      // Helper function to get the appropriate src value for images
       const getSrcFromAttributes = (img) => {
         const srcset = img.getAttribute('srcset');
         const dataSrc = img.getAttribute('data-src');
         const dataLazySrc = img.getAttribute('data-lazy-src');
-
-        if (srcset) {
-          return srcset.split(',')[0].trim().split(' ')[0];
-        } else if (dataSrc) {
-          return dataSrc;
-        } else if (dataLazySrc) {
-          return dataLazySrc;
-        }
+        if (srcset) return srcset.split(',')[0].trim().split(' ')[0];
+        if (dataSrc) return dataSrc;
+        if (dataLazySrc) return dataLazySrc;
         return null;
       };
 
-      // Update <img> elements
       container.querySelectorAll('img').forEach(img => {
         let src = img.getAttribute('src');
-        // Only process if the src starts with 'data:image'
         if (src && src.startsWith('data:image')) {
           const newSrc = getSrcFromAttributes(img);
-          if (newSrc) {
-            img.setAttribute('src', newSrc);
-            src = newSrc;
-          }
+          if (newSrc) img.setAttribute('src', newSrc);
+          src = newSrc;
         }
-        // Adjust src if it contains the target string
         const target = 'https://sharktankrecap.com/';
-        const idx = src.indexOf(target);
-        if (idx > 0) {
-          img.setAttribute('src', src.substring(idx));
-        }
+        const idx = src?.indexOf(target);
+        if (idx > 0) img.setAttribute('src', src.substring(idx));
       });
 
-      // Update all anchor elements with rel="home" to have href as baseUrl
-      if (baseUrl) {
-        container.querySelectorAll('a[rel="home"]').forEach(anchor => {
-          anchor.href = baseUrl;
-        });
-        const comp = document.querySelector('a[rel="tag"]');
-        if (comp) {
-          comp.href = baseUrl;
-        }
+      container.querySelectorAll('a[rel="home"]').forEach(anchor => {
+        anchor.href = recapLink;
+      });
+      const comp = document.querySelector('a[rel="tag"]');
+      if (comp) {
+        comp.href = recapLink;
       }
 
-      // Update all anchor elements with rel="tag" whose inner text starts with "SEASON" followed by a space and a one or two digit number.
       container.querySelectorAll('a[rel="tag"]').forEach(anchor => {
-        // Regex: starts with "SEASON", case-insensitive, followed by one or more whitespace characters and then a one or two digit number.
         const match = anchor.textContent.match(/^SEASON\s+(\d{1,2})/i);
         if (match) {
-          const seasonNum = match[1];
-          anchor.href = "S" + seasonNum + ".html";
+          anchor.href = "S" + match[1] + ".html";
         }
       });
 
-      // Remove <iframe> elements that don't have src or whose src is not a YouTube link
       container.querySelectorAll('iframe').forEach(iframe => {
         const iframeSrc = iframe.getAttribute('src');
         if (!iframeSrc || !iframeSrc.startsWith('https://www.youtube.com')) {
@@ -105,36 +70,23 @@
       });
     };
 
-    // Fetch remote HTML and replace the entire document with it
     const fetchAndReplaceHTML = async () => {
       try {
-        const funcUrl = `/.netlify/functions/fetch?name=${encodeURIComponent(nameParam)}`;
+        const funcUrl = `/.netlify/functions/fetch?link=${encodeURIComponent(recapLink)}`;
         const res = await fetch(funcUrl);
-        if (!res.ok) {
-          throw new Error(`HTTP error: ${res.status}`);
-        }
+        if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
         const html = await res.text();
-        // Parse the fetched HTML string into a document
         const parser = new DOMParser();
         const newDoc = parser.parseFromString(html, 'text/html');
-        // Replace the current document's root (<html>) with the fetched one.
         document.replaceChild(newDoc.documentElement, document.documentElement);
-        // Now that the new document is in place, modify its content as needed.
         processContent();
       } catch (error) {
         console.error('Error fetching HTML:', error);
-        // Optionally display an error message to users:
         document.body.innerHTML = '<h2>Error loading content. Please try again later.</h2>';
       }
     };
 
-    // Initialization: set title and baseUrl, then fetch and replace the HTML content
-    const init = async () => {
-      await setPageTitleAndBase();
-      await fetchAndReplaceHTML();
-    };
-
-    init();
+    fetchAndReplaceHTML();
   </script>
 </body>
 </html>
