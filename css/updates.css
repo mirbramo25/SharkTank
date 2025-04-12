@@ -37,8 +37,8 @@ img {
     height: auto; /* Maintains the aspect ratio of the image */
     display: block; /* Prevents inline element spacing issues */
 }
-
-#recap a, #blog a {
-  margin-bottom: 1em;
+.justLink {
   display: block;
+  margin-bottom: 1em;
 }
+

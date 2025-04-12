@@ -66,12 +66,12 @@
             const link1 = document.createElement('a');
             link1.href = recapLink;
             link1.textContent = recapLink;
-            link1.style.display = 'block';
+            link1.classList.add('justLink');
 
             const link2 = document.createElement('a');
             link2.href = testPageLink;
             link2.textContent = testPageLink;
-            link2.style.display = 'block';
+            link2.classList.add('justLink');
 
             recapDiv.appendChild(link1);
             recapDiv.appendChild(link2);
@@ -92,6 +92,7 @@
             const link = document.createElement('a');
             link.href = blogLink;
             link.textContent = blogLink;
+            link.classList.add('justLink');
             blogDiv.appendChild(link);
           }
 
