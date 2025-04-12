@@ -47,7 +47,7 @@
 
           const recapBody = entry?.recap?.recapBody;
           const recapLink = entry?.recap?.recapLink;
-          const testPageLink = `https://sharktankups.netlify.app/test.html${window.location.search}`;
+          const testPageLink = `https://sharktankups.netlify.app/test.html?link=${encodeURIComponent(recapLink)}`;
           const recapDiv = document.createElement('div');
           recapDiv.id = 'recap';
 
