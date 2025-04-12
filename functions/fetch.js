@@ -1,14 +1,12 @@
 exports.handler = async (event) => {
-  // Dynamically import node-fetch
-  const fetch = (...args) =>
-    import('node-fetch').then(({ default: fetch }) => fetch(...args));
+  // Global fetch is assumed to be available (Node.js 18+)
 
   // Extract the "link" and "name" query parameters from the request
   const { link, name } = event.queryStringParameters || {};
 
   let targetURL;
   if (link) {
-    // If "link" exists, use it directly
+    // Use the "link" parameter as the target URL
     targetURL = link;
   } else if (name) {
     // Only require Updates.json if "name" parameter is provided
@@ -36,20 +34,20 @@ exports.handler = async (event) => {
       statusCode: 400,
       headers: { 'Content-Type': 'text/html' },
       body: `
-          <div style="padding: 10px; background: #f0f0f0; border-bottom: 1px solid #ccc;">
-            <strong>Target URL:</strong> <span>N/A</span>
-          </div>
-          <div style="padding:10px;">
-            <h2>Error: ${errorMsg}</h2>
-          </div>
-        `,
+        <div style="padding: 10px; background: #f0f0f0; border-bottom: 1px solid #ccc;">
+          <strong>Target URL:</strong> <span>N/A</span>
+        </div>
+        <div style="padding:10px;">
+          <h2>Error: ${errorMsg}</h2>
+        </div>
+      `,
     };
   }
 
   try {
     const response = await fetch(targetURL);
     if (!response.ok) {
-      // If a non-OK status comes back, capture any response text for debugging
+      // Capture any error message from the HTTP response
       const errorText = await response.text();
       const outputHtml = `
         <div style="padding: 10px; background: #f0f0f0; border-bottom: 1px solid #ccc;">
@@ -83,7 +81,7 @@ exports.handler = async (event) => {
       body: outputHtml,
     };
   } catch (error) {
-    // If an exception occurs, display detailed debugging info along with the target URL
+    // Return detailed debugging information along with the target URL
     const outputHtml = `
       <div style="padding: 10px; background: #f0f0f0; border-bottom: 1px solid #ccc;">
         <strong>Target URL:</strong> <span>${targetURL}</span>
