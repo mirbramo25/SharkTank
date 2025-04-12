@@ -8,103 +8,61 @@
 </head>
 <body>
   <script>
-    function getUrlParameter(name) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(name);
-    }
-
-    const name = getUrlParameter('name');
-
+    const name = new URLSearchParams(window.location.search).get('name');
     if (!name) {
-      console.error('Name parameter is missing');
-      document.body.innerHTML = 'Name parameter is missing';
-    } else {
-      fetch('Updates By Season.json')
-        .then(response => response.json())
-        .then(data => {
-          let entry = null;
-          const keys = Object.keys(data);
-          const isNested = keys.length && /^s\d+$/i.test(keys[0]);
-
-          if (isNested) {
-            for (const season in data) {
-              if (data[season][name]) {
-                entry = data[season][name];
-                break;
-              }
-            }
-          } else {
-            entry = data[name];
-          }
-
-          if (!entry) {
-            console.error(`No data found for '${name}' in Updates.json`);
-            document.body.innerHTML = `No data found for '${name}'`;
-            return;
-          }
-
-          document.title = entry.title || name;
-
-          const recapBody = entry?.recap?.recapBody;
-          const recapLink = entry?.recap?.recapLink;
-          const testPageLink = `https://sharktankups.netlify.app/recap.html?link=${encodeURIComponent(recapLink)}`;
-          const recapDiv = document.createElement('div');
-          recapDiv.id = 'recap';
-
-          if (recapBody) {
-            recapDiv.innerHTML = recapBody;
-
-            const firstHeadingRecap = recapDiv.querySelector('h1, h2, h3, h4, h5, h6');
-            if (firstHeadingRecap) {
-              const firstLinkInHeading = firstHeadingRecap.querySelector('a');
-              if (firstLinkInHeading) {
-                firstLinkInHeading.href = testPageLink;
-                // do not change textContent here
-              }
-            }
-          } else if (recapLink) {
-            const link1 = document.createElement('a');
-            link1.href = recapLink;
-            link1.textContent = recapLink;
-            link1.classList.add('justLink');
-
-            const link2 = document.createElement('a');
-            link2.href = testPageLink;
-            link2.textContent = testPageLink;
-            link2.classList.add('justLink');
-
-            recapDiv.appendChild(link1);
-            recapDiv.appendChild(link2);
-          }
-
-          if (recapDiv.hasChildNodes()) {
-            document.body.appendChild(recapDiv);
-          }
-
-          const blogBody = entry?.blog?.blogBody;
-          const blogLink = entry?.blog?.blogLink;
-          const blogDiv = document.createElement('div');
-          blogDiv.id = 'blog';
-
-          if (blogBody) {
-            blogDiv.innerHTML = blogBody;
-          } else if (blogLink) {
-            const link = document.createElement('a');
-            link.href = blogLink;
-            link.textContent = blogLink;
-            link.classList.add('justLink');
-            blogDiv.appendChild(link);
-          }
-
-          if (blogDiv.hasChildNodes()) {
-            document.body.appendChild(blogDiv);
-          }
-        })
-        .catch(error => {
-          console.error('Error loading Updates.json:', error);
-          document.body.innerHTML = 'Error loading updates.';
-        });
+      document.body.textContent = 'Name parameter is missing';
+      throw new Error('Name parameter is missing');
     }
+
+    fetch('Updates By Season.json')
+      .then(res => res.json())
+      .then(data => {
+        const entry = Object.values(data).reduce((acc, season) => acc || season[name], data[name] || null);
+        if (!entry) {
+          document.body.textContent = `No data found for '${name}'`;
+          throw new Error(`No data found for '${name}'`);
+        }
+
+        document.title = entry.title || name;
+
+        const createLinkH2 = (href, text) => {
+          const h2 = document.createElement('h2');
+          h2.className = 'justLink';
+          const a = document.createElement('a');
+          a.href = href;
+          a.textContent = text;
+          h2.appendChild(a);
+          return h2;
+        };
+
+        const recapDiv = document.createElement('div');
+        recapDiv.id = 'recap';
+        if (entry.recap?.recapBody) {
+          recapDiv.innerHTML = entry.recap.recapBody;
+          const heading = recapDiv.querySelector('h1, h2, h3, h4, h5, h6');
+          const link = heading?.querySelector('a');
+          if (link && entry.recap.recapLink) {
+            link.href = `https://sharktankups.netlify.app/recap.html?link=${encodeURIComponent(entry.recap.recapLink)}`;
+          }
+        } else if (entry.recap?.recapLink) {
+          recapDiv.appendChild(createLinkH2(entry.recap.recapLink, entry.recap.recapLink));
+          recapDiv.appendChild(createLinkH2(`https://sharktankups.netlify.app/recap.html?link=${encodeURIComponent(entry.recap.recapLink)}`, 'Test Page'));
+        }
+        if (recapDiv.hasChildNodes()) document.body.appendChild(recapDiv);
+
+        const blogDiv = document.createElement('div');
+        blogDiv.id = 'blog';
+        if (entry.blog?.blogBody) {
+          blogDiv.innerHTML = entry.blog.blogBody;
+        } else if (entry.blog?.blogLink) {
+          blogDiv.appendChild(createLinkH2(entry.blog.blogLink, entry.blog.blogLink));
+        }
+        if (blogDiv.hasChildNodes()) document.body.appendChild(blogDiv);
+      })
+      .catch(err => {
+        console.error(err);
+        if (!document.body.textContent) document.body.textContent = 'Error loading updates.';
+      });
   </script>
 </body>
 </html>
