@@ -46,7 +46,7 @@
           }
         } else if (entry.recap?.recapLink) {
           recapDiv.appendChild(createLinkH2(entry.recap.recapLink, entry.recap.recapLink));
-          recapDiv.appendChild(createLinkH2(`https://sharktankups.netlify.app/recap.html?link=${encodeURIComponent(entry.recap.recapLink)}`, 'Test Page'));
+          recapDiv.appendChild(createLinkH2(`https://sharktankups.netlify.app/recap.html?link=${encodeURIComponent(entry.recap.recapLink)}`, 'Recap Page'));
         }
         if (recapDiv.hasChildNodes()) document.body.appendChild(recapDiv);
 
