@@ -18,16 +18,18 @@
                 next &&
                 next.matches("h3.entry-title.td-module-title") &&
                 next.querySelector("a.reddit")
-              ) return;
+              )
+                return;
 
-              // original title up to last space
+              // original title extraction remains unchanged
               const fullTitle = anchor.title || "";
               const idx = fullTitle.lastIndexOf(" ");
-              const currTitle =
-                idx > 0 ? fullTitle.slice(0, idx) : fullTitle;
-
-              // clean it for JSON lookup
-              const cleanTitle = currTitle
+              const currTitle = idx > 0 ? fullTitle.slice(0, idx) : fullTitle;
+              
+              // clean title for JSON lookup: check for a dash and process directly
+              const cleanTitle = (currTitle.includes("–")
+                ? currTitle.split("–")[0].trim()
+                : currTitle)
                 .replace(/[\u2018\u2019]|&#8217;/g, "'")
                 .replace(/&(#038|amp);|&/g, "and")
                 .replace(/\.|—| &#8211;/g, "")
